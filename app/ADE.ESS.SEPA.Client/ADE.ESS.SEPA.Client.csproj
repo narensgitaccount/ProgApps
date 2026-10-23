@@ -19,26 +19,11 @@
     <PackageReference Include="Serilog.AspNetCore" Version="10.0.0" />
   </ItemGroup>
 	<ItemGroup>
-		<PackageReference Include="Telerik.UI.for.Blazor"  Version="*" />
+		<PackageReference Include="Telerik.UI.for.Blazor"  Version="15.1.0" />
 	</ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\ADE.ESS.SEPA.Application\ADE.ESS.SEPA.Application.csproj" />
     <ProjectReference Include="..\ADE.ESS.SEPA.Infrastructure\ADE.ESS.SEPA.Infrastructure.csproj" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <Reference Include="Telerik.Blazor">
-      <HintPath>ExternalLibraries\Telerik.Blazor.dll</HintPath>
-    </Reference>
-    <Reference Include="Telerik.DataSource">
-      <HintPath>ExternalLibraries\Telerik.DataSource.dll</HintPath>
-    </Reference>
-    <Reference Include="Telerik.FontIcons">
-      <HintPath>ExternalLibraries\Telerik.FontIcons.dll</HintPath>
-    </Reference>
-    <Reference Include="Telerik.SvgIcons">
-      <HintPath>ExternalLibraries\Telerik.SvgIcons.dll</HintPath>
-    </Reference>
   </ItemGroup>
 
 </Project>
