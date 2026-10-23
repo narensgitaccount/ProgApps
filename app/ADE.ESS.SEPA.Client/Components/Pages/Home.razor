@@ -1,0 +1,90 @@
+﻿@page "/"
+@using System.Net
+@using System.Security.Claims
+@using ADE.ESS.SEPA.Application.DTOs
+@using ADE.ESS.SEPA.Infrastructure.DBRepositories
+@using Microsoft.AspNetCore.Components.Authorization
+@using Telerik.Blazor.Components
+@inject ADE.ESS.SEPA.Application.Interfaces.IDashboardService DashboardService
+@inject AuthenticationStateProvider AuthenticationStateProvider
+@inject NavigationManager Navigation
+@rendermode @(new InteractiveServerRenderMode(prerender: false))
+
+<PageTitle>SEPA Portal</PageTitle>
+
+@* <h1>Hello, ADE!</h1>
+
+Welcome to your new app.
+<br />
+<br />
+
+<TelerikButton OnClick="OpenDesignPage">    Open Telerik Components Design Demo Page</TelerikButton>
+<br />
+<br />
+
+<TelerikButton OnClick="OpenDemoDashboardPage">    Open Dashboard Components Demo Page</TelerikButton>
+
+<br />
+<br />
+
+<TelerikButton OnClick="@(() => OpenUnderConstructionPage("Open Application Dashboard", "DashboardPage"))">
+    Open Application Dashboard
+</TelerikButton> *@
+@if (IsLoading)
+{
+    <p>loading Application details...</p>
+}
+else
+{
+    <div id="homePageText" style="text-align: left;">
+        <div style="margin-left: 2%; margin-right: 2%">
+            @((MarkupString)WebUtility.HtmlDecode(HomeText))
+        </div>
+    </div>
+  
+}
+
+
+
+@code {
+    private bool IsLoading = true;
+    private string HomeText = string.Empty;
+
+    protected override async Task OnInitializedAsync()
+    {
+        try
+        {
+            // Need to set bunch of sessions and claims here.
+
+            // If your service has an Async version, use it here (e.g., GetLookupManagementValueAsync)
+            HomeText = await DashboardService.GetLookupManagementValue("PublicPreLoginText");
+        }
+        catch (Exception ex)
+        {
+            // Handle or log your exception here
+            HomeText = "Error loading content.";
+        }
+        finally
+        {
+            IsLoading = false;
+            // Forces the UI to refresh from the loading state to the content state
+            StateHasChanged();
+        }
+    }
+
+    private void OpenUnderConstructionPage(string  label, string legacyPage)
+    {
+        var Url = $"/under-construction?page={Uri.EscapeDataString(label)}&legacy={Uri.EscapeDataString(legacyPage)}";
+         Navigation.NavigateTo(Url);
+    }
+    private void OpenDesignPage()
+    {
+         Navigation.NavigateTo("/TelerikDemoPage");
+    }
+
+    
+    private void OpenDemoDashboardPage()
+    {
+         Navigation.NavigateTo("/DemoDashboard");
+    }
+}

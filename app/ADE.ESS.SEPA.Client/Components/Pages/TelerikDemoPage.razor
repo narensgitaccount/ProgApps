@@ -1,0 +1,144 @@
+﻿@page "/TelerikDemoPage"
+@inject NavigationManager Navigation
+@using Telerik.Blazor
+@using Telerik.Blazor.Components
+
+<h1>Telerik UI Components Default Showcase</h1>
+<p>Version: Telerik UI for Blazor 8.0.0 (.NET 10)</p>
+
+<hr />
+
+<!-- Sections & Layouts -->
+<h3>Sections & Tab Layouts</h3>
+<TelerikTabStrip>
+    <TabStripTab Title="Text & Selection Inputs">
+        
+        <!-- Text Box -->
+        <label>Text Box (Single Line):</label>
+        <TelerikTextBox @bind-Value="@TextValue" Placeholder="Enter text..." />
+        
+        <!-- Text Area -->
+        <label>Text Area (Multi-line):</label>
+        <TelerikTextArea @bind-Value="@TextAreaValue" Placeholder="Enter long notes..." />
+
+        <!-- Dropdown List -->
+        <label>Dropdown List:</label>
+        <TelerikDropDownList Data="@DropdownOptions" 
+                             @bind-Value="@SelectedDropdownValue" 
+                             DefaultText="Select a role...">
+        </TelerikDropDownList>
+       @*      <TelerikButton OnClick="" ThemeColor="@ThemeConstants.Button.ThemeColor.Error" FillMode="@ThemeConstants.Button.FillMode.Outline">
+                            Delete Scenario
+                        </TelerikButton> *@
+        <!-- Checkbox -->
+        <div>
+            <TelerikCheckBox Id="demoCheckbox" @bind-Value="@CheckboxValue" />
+            <label for="demoCheckbox">Standard Checkbox Option</label>
+        </div>
+
+        <!-- Switch Toggles -->
+        <div>
+            <label>Switch Toggle:</label>
+            <TelerikSwitch @bind-Value="@SwitchValue" />
+        </div>
+
+    </TabStripTab>
+
+    <TabStripTab Title="Numbers, Dates & Colors">
+
+        <!-- Numbers (Floating/Double decimal points) -->
+        <label>Numeric TextBox (Decimals allowed):</label>
+        <TelerikNumericTextBox @bind-Value="@DecimalValue" />
+
+        <!-- Digits Only (Whole numbers integers) -->
+        <label>Numeric TextBox (Whole Digits Only):</label>
+        <TelerikNumericTextBox @bind-Value="@IntegerValue" Step="1" Format="N0" />
+
+        <!-- Radio Buttons Group -->
+        <label>Radio Button Selection:</label>
+        <TelerikRadioGroup Data="@RadioOptions" 
+                           @bind-Value="@SelectedRadioValue" 
+                           ValueField="@nameof(RadioItem.Value)" 
+                           TextField="@nameof(RadioItem.Text)">
+        </TelerikRadioGroup>
+
+        <!-- Date Picker (Commonly missed item) -->
+        <label>Date Picker:</label>
+        <TelerikDatePicker @bind-Value="@DateValue" />
+
+        <!-- Color Picker (Great default utility for UI Designers) -->
+        <label>Color Picker:</label>
+        <TelerikColorPicker @bind-Value="@ColorValue" />
+
+    </TabStripTab>
+</TelerikTabStrip>
+
+<hr />
+
+<!-- Default Button Design Variants -->
+<h3>Native Telerik Button Themes</h3>
+<p>These use built-in Telerik enum layouts without custom classes.</p>
+
+<TelerikButton OnClick="@(() => ButtonStatus = "Default Clicked")">
+    Default
+</TelerikButton>
+
+<TelerikButton ThemeColor="primary" OnClick="@(() => ButtonStatus = "Primary Clicked")">
+    Primary
+</TelerikButton>
+
+<TelerikButton ThemeColor="success" OnClick="@(() => ButtonStatus = "Success Clicked")">
+    Success
+</TelerikButton>
+
+<TelerikButton ThemeColor="danger" OnClick="@(() => ButtonStatus = "Danger Clicked")">
+    Danger
+</TelerikButton>
+
+<TelerikButton FillMode="flat" OnClick="@(() => ButtonStatus = "Flat Clicked")">
+    Flat Style Button
+</TelerikButton>
+
+<TelerikButton Enabled="false">
+    Disabled Button
+</TelerikButton>
+
+<p><strong>Last Click Action:</strong> @ButtonStatus</p>
+
+<p>End of Telerik Basic components</p>
+
+   <br />
+    <br />
+    <br />
+    <br />
+    <br />
+    <br />
+
+@code {
+    // Value Bindings
+    private string TextValue { get; set; } = "";
+    private string TextAreaValue { get; set; } = "";
+    private string SelectedDropdownValue { get; set; } = "";
+    private bool CheckboxValue { get; set; } = false;
+    private bool SwitchValue { get; set; } = true;
+    private decimal DecimalValue { get; set; } = 10.50m;
+    private int IntegerValue { get; set; } = 100;
+    private string SelectedRadioValue { get; set; } = "1";
+    private DateTime DateValue { get; set; } = DateTime.Now;
+    private string ColorValue { get; set; } = "#3f51b5";
+    private string ButtonStatus { get; set; } = "None";
+
+    // Mock Data Collections
+    private List<string> DropdownOptions { get; set; } = new List<string> { "Admin", "Designer", "User" };
+    private List<RadioItem> RadioOptions { get; set; } = new List<RadioItem>
+    {
+        new RadioItem { Text = "Option A", Value = "1" },
+        new RadioItem { Text = "Option B", Value = "2" }
+    };
+
+    public class RadioItem
+    {
+        public string Text { get; set; } = "";
+        public string Value { get; set; } = "";
+    }
+}

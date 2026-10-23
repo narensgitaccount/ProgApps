@@ -1,0 +1,374 @@
+﻿@page "/DemoDashboard"
+@using System.Security.Claims
+@using ADE.ESS.SEPA.Application.DTOs
+@using ADE.ESS.SEPA.Infrastructure.DBRepositories
+@using Microsoft.AspNetCore.Components.Authorization
+@using Telerik.Blazor.Components
+@inject ADE.ESS.SEPA.Application.Interfaces.IDashboardService DashboardService
+@inject AuthenticationStateProvider AuthenticationStateProvider
+
+<PageTitle>SEPA Portal</PageTitle>
+
+<h1>Hello, ADE!</h1>
+
+Welcome to your new app.
+
+@if (CurrentUser == null)
+{
+    <p>loading authentication...</p>
+}
+else
+{
+    <h1>ADE Authentication</h1>
+    <p><strong>authenticated:</strong>    @CurrentUser.Identity?.IsAuthenticated        </p>
+    <p><strong>Name:</strong>    @CurrentUser.Identity?.Name        </p>
+    <p><strong>Email:</strong>    @GetClaim(ClaimTypes.Email)        </p>
+    <p><strong>Surname:</strong>   @GetClaim(ClaimTypes.Surname)       </p>
+    <p><strong>Department:</strong>   @GetClaim("http://www.azed.gov/claims/Department")         </p>
+}
+
+@if (IsLoading)
+{
+    <p>loading Application details...</p>
+}
+else
+{
+    <br />
+    <br />
+    <br />
+    <h1>Html design</h1>
+    <p><strong>ApplicationID:</strong>    @application?.ApplicationID       </p>
+    <p><strong>FiscalYear:</strong>    @application?.FiscalYear       </p>
+    <p><strong>EntityID:</strong>    @application?.EntityID       </p>
+    <p><strong>CorporateName:</strong>    @application?.CorporateName       </p>
+    <p><strong>Status:</strong>    @application?.Status       </p>
+    <p><strong>IsCurrent:</strong>    @application?.IsCurrent       </p>
+
+    <br />
+    <br />
+    <br />
+    <h1>Telerik design 1</h1>
+    <TelerikForm Model="@application">
+        <FormItems>
+
+            <FormItem>
+                <Template>
+                    <table class="table table-bordered w-100">
+                        <tr>
+                            <td style="width:35%">
+                                <strong>CorporateName</strong>
+                            </td>
+                            <td>
+                                <TelerikTextBox @bind-Value="application.CorporateName"
+                                                Enabled="false" />
+                            </td>
+                        </tr>
+
+                        <tr>
+                            <td>
+                                <strong>Status</strong>
+                            </td>
+                            <td>
+                                <InputSelect class="form-control" @bind-Value="application.Status">
+                                    <option value="1">Draft</option>
+                                    <option value="2">Submit</option>
+                                </InputSelect>
+                            </td>
+                        </tr>
+
+                        <tr>
+                            <td>
+                                <strong>FiscalYear</strong>
+                            </td>
+                            <td>
+                                <InputNumber @bind-Value="application.FiscalYear"
+                                             Rows="4"
+                                             Enabled="false" />
+                            </td>
+                        </tr>
+                    </table>
+                </Template>
+            </FormItem>
+
+        </FormItems>
+    </TelerikForm>
+
+    <br />
+    <br />
+    <br />
+
+    <br />
+    <br />
+    <br />
+    <h1>Telerik design 2 alternative</h1>
+    <TelerikGridLayout>
+
+        <GridLayoutColumns>
+            <GridLayoutColumn Width="1fr" />
+            <GridLayoutColumn Width="1fr" />
+        </GridLayoutColumns>
+
+        <GridLayoutItems>
+
+            <GridLayoutItem Row="1" Column="1">
+                <label>Corporate Name</label>
+                <TelerikTextBox @bind-Value="application.CorporateName" />
+            </GridLayoutItem>
+
+            <GridLayoutItem Row="1" Column="2">
+                <label>Status</label>
+                <InputSelect class="form-control" @bind-Value="application.Status">
+                    <option value="1">Draft</option>
+                    <option value="2">Submit</option>
+                </InputSelect>
+            </GridLayoutItem>
+
+        </GridLayoutItems>
+
+    </TelerikGridLayout>
+
+
+    <br />
+    <br />
+    <br />
+
+    <br />
+    <br />
+    <br />
+    @* <h1>Telerik design 2</h1>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    <TelerikGridLayout Columns= "2"
+                       ColumnSpacing="20px">
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+        <GridLayoutItems>
+
+            <GridLayoutItem>
+                <div>
+                    <label class="fw-bold">CorporateName</label>
+                    <TelerikTextBox @bind-Value="application.CorporateName"
+                                    Enabled="false" />
+                </div>
+            </GridLayoutItem>
+
+            <GridLayoutItem>
+                <div>
+                    <label class="fw-bold">Status</label>
+                    <InputSelect class="form-control" @bind-Value="application.Status">
+                        <option value="1">Draft</option>
+                        <option value="2">Submit</option>
+                    </InputSelect>
+                </div>
+            </GridLayoutItem>
+
+            <GridLayoutItem>
+                <div>
+                    <label class="fw-bold">Teacher Name</label>
+                    <InputNumber @bind-Value="application.FiscalYear"
+                                    Enabled="false" />
+                </div>
+            </GridLayoutItem>
+
+            <GridLayoutItem>
+                <div>
+                    <label class="fw-bold">Site</label>
+                    <InputNumber @bind-Value="application.IsCurrent"
+                                    Enabled="false" />
+                </div>
+            </GridLayoutItem>
+
+        </GridLayoutItems>
+
+    </TelerikGridLayout>
+
+    <br />
+    <br />
+    <br />
+
+    <br />
+    <br />
+    <br /> *@
+@*     <h1>Telerik design 3</h1>
+
+    <TelerikGridLayout Columns="2"
+                   ColumnSpacing="20px">
+
+    <GridLayoutItems>
+
+        <GridLayoutItem>
+            <label class="fw-bold mb-2">
+                    CorporateName
+            </label>
+
+                <TelerikTextBox @bind-Value="application.CorporateName"
+                            Width="100%" />
+        </GridLayoutItem>
+
+        <GridLayoutItem>
+            <label class="fw-bold mb-2">
+                Status
+            </label>
+
+                <InputSelect class="form-control" @bind-Value="application.Status">
+                    <option value="1">Draft</option>
+                    <option value="2">Submit</option>
+                </InputSelect>
+        </GridLayoutItem>
+
+        <GridLayoutItem ColumnSpan="2">
+
+            <label class="fw-bold mb-2">
+                Comments
+            </label>
+
+            <InputNumber Rows="5"
+                             Width="100%"
+                             @bind-Value="application.FiscalYear" />
+
+        </GridLayoutItem>
+
+    </GridLayoutItems>
+
+</TelerikGridLayout> *@
+
+
+<br />
+<br />
+<br />
+
+<br />
+<br />
+<br />
+<h1>Telerik design 4</h1>
+<TelerikCard Width="100%" Class="mb-4">
+
+<CardHeader>
+<h4>Application Summary</h4>
+</CardHeader>
+
+<CardBody>
+
+<div class="row">
+
+<div class="col-md-3">
+<strong>Application ID</strong>
+<br />
+APP-00124
+</div>
+
+<div class="col-md-3">
+<strong>Status</strong>
+<br />
+Approved
+</div>
+
+<div class="col-md-3">
+<strong>Teacher</strong>
+<br />
+John Smith
+</div>
+
+<div class="col-md-3">
+<strong>Site</strong>
+<br />
+Washington Elementary
+</div>
+
+</div>
+
+        </CardBody>
+
+    </TelerikCard>
+
+}

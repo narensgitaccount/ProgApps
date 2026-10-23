@@ -1,0 +1,7 @@
+<Solution>
+  <Project Path="ADE.ESS.SEPA.Application/ADE.ESS.SEPA.Application.csproj" />
+  <Project Path="ADE.ESS.SEPA.Client/ADE.ESS.SEPA.Client.csproj" />
+  <Project Path="ADE.ESS.SEPA.Common/ADE.ESS.SEPA.Common.csproj" />
+  <Project Path="ADE.ESS.SEPA.Domain/ADE.ESS.SEPA.Domain.csproj" />
+  <Project Path="ADE.ESS.SEPA.Infrastructure/ADE.ESS.SEPA.Infrastructure.csproj" />
+</Solution>

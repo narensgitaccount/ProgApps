@@ -1,0 +1,98 @@
+﻿@page "/under-construction"
+@using Microsoft.AspNetCore.Components
+
+<PageTitle>@(PageName ?? "Coming Soon")</PageTitle>
+
+<div class="uc-shell">
+    <div class="uc-card">
+        <div class="uc-icon">&#128679;</div>
+        <h1 class="uc-title">Coming Soon</h1>
+        <p class="uc-subtitle">
+            @if (!string.IsNullOrWhiteSpace(PageName))
+            {
+                <span><strong>@PageName</strong> is being built in the new app.</span>
+            }
+            else
+            {
+                <span>This page is being built in the new app.</span>
+            }
+        </p>
+        <p class="uc-meta">
+            The old app's equivalent will continue to work during the migration.
+            @if (!string.IsNullOrWhiteSpace(LegacyPath))
+            {
+                <span> Legacy URL: <code>@LegacyPath</code></span>
+            }
+        </p>
+        <a class="uc-back" href="/">&#8592; Back to Home</a>
+    </div>
+</div>
+
+@code {
+    [SupplyParameterFromQuery(Name = "page")] public string? PageName { get; set; }
+    [SupplyParameterFromQuery(Name = "legacy")] public string? LegacyPath { get; set; }
+}
+
+<style>
+    .uc-shell {
+        min-height: 60vh;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        padding: 2rem;
+    }
+
+    .uc-card {
+        background: #fff;
+        border: 1px solid #e8e8e8;
+        border-radius: 12px;
+        padding: 2.5rem 3rem;
+        max-width: 560px;
+        text-align: center;
+        box-shadow: 0 2px 12px rgba(0, 0, 0, 0.05);
+    }
+
+    .uc-icon {
+        font-size: 3rem;
+        margin-bottom: 0.5rem;
+    }
+
+    .uc-title {
+        margin: 0 0 0.5rem;
+        font-size: 1.6rem;
+        color: #1a3a6b;
+    }
+
+    .uc-subtitle {
+        font-size: 1rem;
+        color: #444;
+        margin: 0 0 1rem;
+    }
+
+    .uc-meta {
+        font-size: 0.85rem;
+        color: #777;
+        margin: 0 0 1.5rem;
+    }
+
+    .uc-meta code {
+        background: #f3f3f3;
+        padding: 0.1rem 0.4rem;
+        border-radius: 3px;
+        font-size: 0.82rem;
+    }
+
+    .uc-back {
+        display: inline-block;
+        padding: 0.5rem 1.25rem;
+        background: #1a3a6b;
+        color: #fff;
+        text-decoration: none;
+        border-radius: 4px;
+        font-weight: 600;
+    }
+
+    .uc-back:hover {
+        background: #13294d;
+    }
+</style>

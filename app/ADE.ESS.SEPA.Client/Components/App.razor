@@ -1,0 +1,26 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <base href="/" />
+    <ResourcePreloader />
+    <link rel="stylesheet" href="@Assets["lib/bootstrap/dist/css/bootstrap.min.css"]" />
+    <link rel="stylesheet" href="@Assets["app.css"]" />
+    <link rel="stylesheet" href="@Assets["ADE.ESS.SEPA.Client.styles.css"]" />
+      @* <link rel="stylesheet"           href="_content/Telerik.UI.for.Blazor/css/kendo-theme-default/all.css" /> *@
+    <ImportMap />
+    <link rel="icon" type="image/png" href="favicon.png" />
+       <HeadOutlet @rendermode="new InteractiveServerRenderMode(prerender:false)" />
+</head>
+
+<body>
+      <Routes @rendermode="new InteractiveServerRenderMode(prerender:false)" />
+    <ReconnectModal />
+       <script src="js/app-storage.js"></script>
+    <script src="@Assets["_framework/blazor.web.js"]"></script>
+      <script src="https://kendo.cdn.telerik.com/blazor/6.2.0/telerik-blazor.min.js" defer></script>
+</body>
+
+</html>

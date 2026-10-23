@@ -1,0 +1,41 @@
+﻿@page "/Dashboard"
+@using System.Security.Claims
+@using ADE.ESS.SEPA.Application.DTOs
+@using ADE.ESS.SEPA.Infrastructure.DBRepositories
+@using Microsoft.AspNetCore.Components.Authorization
+@using Telerik.Blazor.Components
+@inject ADE.ESS.SEPA.Application.Interfaces.IDashboardService DashboardService
+@inject AuthenticationStateProvider AuthenticationStateProvider
+
+<PageTitle>SEPA Portal</PageTitle>
+
+<h1>Hello, ADE!</h1>
+
+Welcome to your new app.
+
+@if (CurrentUser == null)
+{
+    <p>loading authentication...</p>
+}
+else
+{
+    <h1>ADE Authentication</h1>
+    <p><strong>authenticated:</strong>    @CurrentUser.Identity?.IsAuthenticated        </p>
+    <p><strong>Name:</strong>    @CurrentUser.Identity?.Name        </p>
+    <p><strong>Email:</strong>    @GetClaim(ClaimTypes.Email)        </p>
+    <p><strong>Surname:</strong>   @GetClaim(ClaimTypes.Surname)       </p>
+    <p><strong>Department:</strong>   @GetClaim("http://www.azed.gov/claims/Department")         </p>
+}
+
+@if (IsLoading)
+{
+    <p>loading Application details...</p>
+}
+else
+{
+
+   
+
+  
+
+}

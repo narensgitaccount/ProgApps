@@ -1,0 +1,138 @@
+﻿@inherits LayoutComponentBase
+@using Telerik.Blazor.Components
+<Telerik.Blazor.Components.TelerikRootComponent>
+    @* <div class="page">
+    <div class="sidebar">
+        <NavMenu />
+    </div>
+    <main>
+        <div class="top-row px-4">
+            <a href="https://learn.microsoft.com/aspnet/core/" target="_blank">About</a>
+        </div>
+
+
+
+
+
+
+
+
+
+
+
+
+
+        <article class="content px-4">
+            @Body
+        </article>
+    </main>
+</div> *@
+
+        <div class="top-header">
+            <NavLink href="/" class="menu-link" Match="NavLinkMatch.Prefix">
+        <div class="logo">
+        ADE SEPA Logo:
+    Special Education Program Approvals (SEPA)
+        </div>
+    </NavLink>
+
+
+
+        </div>
+
+            <div class="menu-bar">
+        <NavLink href="/" class="menu-link" style="padding-left:15px" Match="NavLinkMatch.Prefix">Home</NavLink>
+    <NavLink href="/dashboard" class="menu-link" style="padding-left:15px" Match="NavLinkMatch.Prefix">Application Dashboard</NavLink>
+        <NavLink href="/dashboard" class="menu-link" style="padding-left:15px" Match="NavLinkMatch.Prefix">Info</NavLink>
+    <NavLink href="/Info" class="menu-link" style="padding-left:15px" Match="NavLinkMatch.Prefix">Help</NavLink>
+         <div class="user-info" style="margin-left: auto; color:white;">
+        Welcome Admin
+    </div>
+    </div>
+
+        <div class="page-content">
+
+@Body
+
+</div>
+    <div class="card-footer bottom-footer" style="height: 120px;" >
+        <div style="align-content:flex-start"> 
+    ARIZONA DEPARTMENT OF EDUCATION <br/>
+Private Special Education School & RTC Approval <br />
+    1535 W.Jefferson Street, Bin#24 <br />
+    phoeninx,AZ 85007 <br />
+    </div>
+    <div style="align-content:flex-end">
+Arizona's Official Website <br /><br />
+For any question, connents, or concerns, please feel free to contact us.<br />
+2026 All rights reserved.<br />
+    </div>
+    </div>
+</Telerik.Blazor.Components.TelerikRootComponent>
+
+    <div id="blazor-error-ui" data-nosnippet>
+    An unhandled error has occurred.
+    <a href="." class="reload">Reload</a>
+    <span class="dismiss">🗙</span>
+    </div>
+    <style>
+    .menu-bar {
+        display: flex;
+        gap: 20px;
+        padding: 15px;
+        background: #003366;
+    }
+
+    .menu-link {
+        color: white;
+        text-decoration: none;
+        font-weight: 600;
+    }
+
+        .menu-link.active {
+            color: #ffd700;
+        }
+
+    .top-header {
+        height: 60px;
+        background: #003366;
+        color: white;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding-left: 25px;
+        padding-right: 25px;
+    }
+
+    .bottom-footer {
+        height: 60px;
+        background: #003366;
+        color: white;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding-left: 25px;
+        padding-right: 25px;
+        /* FIX FOR FIXED PERSISTENT OVERLAY */
+        position: fixed;
+        bottom: 0;
+        left: 0;
+        width: 100%;
+        z-index: 1000;
+    }
+
+    .logo {
+        font-size: 24px;
+        font-weight: bold;
+    }
+
+    .user-info {
+        font-size: 14px;
+        align-content:flex-end;
+}
+
+.page-content {
+    padding-left: 20px;
+    width: 1820px;
+}
+</style>
