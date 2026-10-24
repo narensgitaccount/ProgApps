@@ -19,9 +19,9 @@ namespace ADE.ESS.SEPA.Client.Services
         private readonly ProtectedLocalStorage _protectedLocalStorage;
 
         private AppStateStore _currentState;
-        private const string StateStorageKey = "AppState";
-        private const string EntityIdStorageKey = "DefaultedEntityId";
-        private const string EntityNameStorageKey = "CurrentEntityName";
+        private const string StateStorageKey = AppStorageKeys.State;
+        private const string EntityIdStorageKey = AppStorageKeys.EntityId;
+        private const string EntityNameStorageKey = AppStorageKeys.EntityName;
 
         public AppStateStore CurrentState => _currentState;
         public bool IsInitialized => _currentState.IsInitialized;
@@ -132,7 +132,7 @@ namespace ADE.ESS.SEPA.Client.Services
                     userState.IsESSAdmin = _userSecurityManager.IsUserAuthorized(entityId, ESSUserPermissionsEnum.ESSAdmin);
                     userState.IsReadOnly = _userSecurityManager.IsUserAuthorized(entityId, ESSUserPermissionsEnum.ReadOnly)
                         && !userState.IsESSAdmin;
-                    await _protectedLocalStorage.SetAsync("IsESSAdmin", userState.IsESSAdmin);
+                    await _protectedLocalStorage.SetAsync(AppStorageKeys.IsEssAdmin,userState.IsESSAdmin);
                 }
                 catch (Exception ex)
                 {
@@ -209,7 +209,7 @@ namespace ADE.ESS.SEPA.Client.Services
                     EntityId = entityId,
                     EntityName = "educationOrg?.EducationOrganizationName" ?? $"Entity {entityId}",
                     CTDS = "educationOrg?.Ctds" ?? "",
-                    IsADE = entityId == 0,
+                    IsADE = entityId == AdeConstants.AdeEntityId,
                     IsActive = true,
                     LastAccessed = DateTime.UtcNow
                 };

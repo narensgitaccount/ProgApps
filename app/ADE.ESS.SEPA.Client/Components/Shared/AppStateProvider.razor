@@ -1,0 +1,32 @@
+@if (_isReady && AppState.IsInitialized)
+{
+    @ChildContent
+}
+else
+{
+    <div class="row">
+        <div class="col-12 p-5 d-flex justify-content-center align-items-center">
+            <div class="text-center">
+                <img src="img/ADESealLogo.png" height="400" alt="ADE logo" class="mb-4">
+                <div class="mt-3">
+                    @if (string.IsNullOrEmpty(_errorMessage))
+                    {
+                        <TelerikLoader Type="@LoaderType.Pulsing"></TelerikLoader>
+                        <p class="mt-2">Loading...</p>
+                    }
+                    else
+                    {
+                        <div class="alert alert-danger mt-3">
+                            <strong>Initialization Error:</strong> @_errorMessage
+                            @if (!string.IsNullOrEmpty(_errorCorrelationId))
+                            {
+                                <br />
+                                <small>Error ID: <code>@_errorCorrelationId</code></small>
+                            }
+                        </div>
+                    }
+                </div>
+            </div>
+        </div>
+    </div>
+}

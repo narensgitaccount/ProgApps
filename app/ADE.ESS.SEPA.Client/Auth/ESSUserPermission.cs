@@ -1,14 +1,8 @@
-namespace ADE.ESS.SEPA.Client.Auth
+namespace ADE.ESS.SEPA.Client.Auth;
+
+public sealed record ESSUserPermission
 {
-    public class ESSUserPermission : System.IEquatable<ESSUserPermission>
-    {
-        public int? EntityId { get; set; }
+    public int? EntityId { get; init; }
 
-        public ESSUserPermissionsEnum Permission { get; set; }
-
-        public bool Equals(ESSUserPermission other)
-        {
-            throw new System.NotImplementedException();
-        }
-    }
+    public ESSUserPermissionsEnum Permission { get; init; }
 }

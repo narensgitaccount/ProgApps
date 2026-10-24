@@ -1,50 +1,28 @@
+using ADE.ESS.SEPA.Application.Interfaces;
 using ADE.ESS.SEPA.Client.Auth.AuthorizationPolicies.Requirements;
 using Microsoft.AspNetCore.Authorization;
 
-namespace ADE.ESS.SEPA.Client.Auth.AuthorizationPolicies.Handlers
+namespace ADE.ESS.SEPA.Client.Auth.AuthorizationPolicies.Handlers;
+
+public sealed class AuthorizedPermissionsHandler(
+    IESSUserSecurityManager securityManager,
+    IAppStateService appState) : AuthorizationHandler<AuthorizedPermissionsRequirementBase>
 {
-    public class AuthorizedPermissionsHandler : AuthorizationHandler<AuthorizedPermissionsRequirementBase>
+    protected override Task HandleRequirementAsync(
+        AuthorizationHandlerContext context,
+        AuthorizedPermissionsRequirementBase requirement)
     {
-        private readonly IESSUserSecurityManager _securityManager;
+        var entityId = appState.CurrentState.EdOrg.EntityId;
 
-        private readonly IHttpContextAccessor _httpaccessor;
-        public AuthorizedPermissionsHandler(IESSUserSecurityManager securityManager, IHttpContextAccessor httpaccessor)
-        {
-            _securityManager = securityManager;
-            _httpaccessor = httpaccessor;
-        }
+        var isAuthorized = requirement is AuthorizedPermissionsUIRequirement
+            ? securityManager.IsUserUIAuthorized(entityId, requirement.Permissions)
+            : securityManager.IsUserAuthorized(entityId, requirement.Permissions);
 
-        protected override Task HandleRequirementAsync(AuthorizationHandlerContext context, AuthorizedPermissionsRequirementBase requirement)
-        {
-            var httpContext = _httpaccessor.HttpContext;
-
-            int entityId = httpContext?.Session.GetInt32("DefaultedEntityId") ?? 0;
-
-            if (requirement is AuthorizedPermissionsUIRequirement)
-            {
-                if (!_securityManager.IsUserUIAuthorized(entityId, requirement._permissionsEnum))
-                {
-                    context.Fail();
-                    return Task.CompletedTask;
-                }
-            }
-            if (!_securityManager.IsUserAuthorized(entityId, requirement._permissionsEnum))
-            {
-                context.Succeed(requirement);
-                if (httpContext != null && !httpContext.Response.HasStarted)
-                {
-                    var accessDeniedPath = string.Empty;
-                    if (httpContext.Request.Host.Host.Contains("localhost"))
-                    {
-                        accessDeniedPath = httpContext.Request.PathBase.Value;
-                    }
-                    httpContext.Response.Redirect($"{accessDeniedPath}/Error?errorMessageConstant=AccessDenied");
-                }
-
-                return Task.CompletedTask;
-            }
+        if (isAuthorized)
             context.Succeed(requirement);
-            return Task.CompletedTask;
-        }
+        else
+            context.Fail();
+
+        return Task.CompletedTask;
     }
 }

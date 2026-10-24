@@ -1,19 +1,12 @@
-namespace ADE.ESS.SEPA.Client.Auth.AuthorizationPolicies.Requirements
+namespace ADE.ESS.SEPA.Client.Auth.AuthorizationPolicies.Requirements;
+
+public sealed class AuthorizedPermissionsRequirement : AuthorizedPermissionsRequirementBase
 {
-    public class AuthorizedPermissionsRequirement : AuthorizedPermissionsRequirementBase
+    public AuthorizedPermissionsRequirement(ESSUserPermissionsEnum permission) : base(permission)
     {
-        public AuthorizedPermissionsRequirement(ESSUserPermissionsEnum permissionEnum) : base(permissionEnum)
-        {
+    }
 
-        }
-
-        /// <summary>
-        /// Initializes a new instance of the <see cref="AuthorizedPermissionsRequirement"/> class.
-        /// </summary>
-        /// <param name="permissionsEnum"></param>
-        public AuthorizedPermissionsRequirement(List<ESSUserPermissionsEnum> permissionsEnum) : base(permissionsEnum)
-        {
-
-        }
+    public AuthorizedPermissionsRequirement(IReadOnlyCollection<ESSUserPermissionsEnum> permissions) : base(permissions)
+    {
     }
 }

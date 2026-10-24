@@ -1,0 +1,29 @@
+@using Telerik.SvgIcons
+@inherits Microsoft.AspNetCore.Components.Web.ErrorBoundary
+
+<div class="error-boundary">
+    @if (CurrentException != null)
+    {
+        <div class="error-boundary-card">
+            <div class="error-boundary-icon">
+                <TelerikSvgIcon Icon="@SvgIcon.XCircle" Size="@ThemeConstants.SvgIcon.Size.ExtraLarge" />
+            </div>
+            <h3 class="error-boundary-title">Something went wrong</h3>
+            <p class="error-boundary-message">An unexpected error occurred while processing your request.</p>
+            <div class="error-boundary-details">
+                <span class="error-boundary-label">Error ID:</span>
+                <code class="error-boundary-code">@_correlationId</code>
+            </div>
+            <p class="error-boundary-help">Please provide this ID to technical support for assistance.</p>
+            <TelerikButton ButtonType="@ButtonType.Button"
+                           ThemeColor="@ThemeConstants.Button.ThemeColor.Primary"
+                           OnClick="@Recover">
+                Try Again
+            </TelerikButton>
+        </div>
+    }
+    else
+    {
+        @ChildContent
+    }
+</div>

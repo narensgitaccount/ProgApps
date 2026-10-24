@@ -1,196 +1,101 @@
-using ADE.ESS.SEPA.Common. Extensions;
-using Microsoft.AspNetCore.Components.Authorization;
+using System.Globalization;
 using System.Security.Claims;
+using ADE.ESS.SEPA.Common.Extensions;
+using Microsoft.AspNetCore.Components.Authorization;
+using Microsoft.Extensions.Options;
 
-namespace ADE.ESS.SEPA.Client.Auth
+namespace ADE.ESS.SEPA.Client.Auth;
+
+public sealed class ESSUserSecurityManager(
+    IHttpContextAccessor httpAccessor,
+    AuthenticationStateProvider authStateProvider,
+    IOptions<AdeConnectOptions> options) : IESSUserSecurityManager
 {
-    public class ESSUserSecurityManager : IESSUserSecurityManager
+    private readonly AdeConnectOptions _options = options.Value;
+
+    private ClaimsPrincipal? _cachedUser;
+    private IReadOnlyList<ESSUserPermission> _cachedPermissions = [];
+
+    public string GetEmail() => GetClaim(_options.EmailAddressClaim);
+
+    public string GetFirstName() => GetClaim(_options.FirstNameClaim);
+
+    public string GetLastName() => GetClaim(_options.LastNameClaim);
+
+    public string GetDepartment() => GetClaim(_options.DepartmentClaim);
+
+    public string GetFullName() => $"{GetFirstName()} {GetLastName()}".Trim();
+
+    public IList<ESSUserPermission> GetEntityPermissions(int edOrg = 0) =>
+        [.. GetPermissions().Where(p => MatchesEntity(p, edOrg))];
+
+    public bool IsUserAuthorized(int edOrgId, ESSUserPermissionsEnum permission) =>
+        IsUserAuthorized(edOrgId, [permission]);
+
+    public bool IsUserAuthorized(int edOrgId, IReadOnlyCollection<ESSUserPermissionsEnum> permissions) =>
+        HasAnyPermission(AdeConstants.AdeEntityId, permissions) || HasAnyPermission(edOrgId, permissions);
+
+    public bool IsUserUIAuthorized(int edOrgId, IReadOnlyCollection<ESSUserPermissionsEnum> permissions) =>
+        IsUserAuthorized(edOrgId, permissions);
+
+    private bool HasAnyPermission(int edOrgId, IReadOnlyCollection<ESSUserPermissionsEnum> permissions) =>
+        GetPermissions().Any(p => MatchesEntity(p, edOrgId) && permissions.Contains(p.Permission));
+
+    private static bool MatchesEntity(ESSUserPermission permission, int edOrgId) =>
+        edOrgId == 0 || permission.EntityId == edOrgId;
+
+    private IReadOnlyList<ESSUserPermission> GetPermissions()
     {
-        private readonly IHttpContextAccessor _httpaccessor;
-        private readonly AuthenticationStateProvider _authStateProvider;
-        private readonly IConfiguration _configuration;
+        var user = GetCurrentUser();
+        if (user is null)
+            return [];
 
-        public ESSUserSecurityManager(IHttpContextAccessor httpaccessor, AuthenticationStateProvider authStateProvider, IConfiguration configuration)
+        if (!ReferenceEquals(user, _cachedUser))
         {
-            this._httpaccessor = httpaccessor;
-            _authStateProvider = authStateProvider;
-            _configuration = configuration;
-        }
-
-        private ClaimsPrincipal? GetCurrentUser()
-        {
-            try
-            {
-                var authStateTask = _authStateProvider.GetAuthenticationStateAsync();
-                if (authStateTask.IsCompletedSuccessfully)
-                {
-                    return authStateTask.Result.User;
-                }
-            }
-            catch (InvalidOperationException)
-            {
-            }
-
-            return _httpaccessor.HttpContext?.User;
-        }
-        public string GetEmail()
-        {
-            return this.GetClaim(_configuration.GetSection("WsFederation:EmailAddressClaim").Value!);
+            _cachedPermissions = ParsePermissions(user);
+            _cachedUser = user;
         }
 
-        public string GetFirstName()
-        {
-            return this.GetClaim(_configuration.GetSection("WsFederation:FirstNameClaim").Value!);
-        }
-        public string GetLastName()
-        {
-            return this.GetClaim(_configuration.GetSection("WsFederation:LastNameClaim").Value!);
-        }
+        return _cachedPermissions;
+    }
 
-        public string GetDepartment()
+    private List<ESSUserPermission> ParsePermissions(ClaimsPrincipal user)
+    {
+        var permissions = new List<ESSUserPermission>();
+        foreach (var value in GetClaimValues(user, _options.EntityPermissionClaim).Distinct())
         {
-            return this.GetClaim(_configuration.GetSection("WsFederation:DepartmentClaim").Value!);
-        }
-
-        public IList<ESSUserPermission> GetEntityPermissions(int edOrg = 0)
-        {
-            return this.GetPermissionsForUser(edOrg);
-        }
-        public bool IsUserAuthorized()
-        {
-            var ESSUserPermissionsEnums = this.GetPermissionsForUser();
-            if (ESSUserPermissionsEnums != null && ESSUserPermissionsEnums.Count > 0)
+            if (value.Split(',') is [var entity, var description]
+                && int.TryParse(entity.Trim(), NumberStyles.Integer, CultureInfo.InvariantCulture, out var entityId)
+                && EnumExtensions.TryParseEnumDescription(description.Trim(), out ESSUserPermissionsEnum permission))
             {
-                //if (!ESSUserPermissionsEnums.Select(p => p.Value).Intersect(allowedPermissons.Select(rp => rp.Value)).Any())
-                //{
-                //    context.Fail();
-                //}
-                //else
-                //{
-                //    context.Fail();
-                //}
-            }
-            else
-            {
-                //context.Fail();
-            }
-
-            return true;
-        }
-        //TODO: Need to change ADE admin logic 
-        public bool IsUserAuthorized(int edOrgId, ESSUserPermissionsEnum permission)
-        {
-            if (IsADEorSupportAdmin(new List<ESSUserPermissionsEnum> { permission }))
-            {
-                return true;
-            }
-            var ESSUserPermissionsEnums = this.GetPermissionsForUser(edOrgId);
-            if (ESSUserPermissionsEnums?.Count > 0)
-            {
-                return ESSUserPermissionsEnums.Count(p => p.Permission == permission) > 0;
-            }
-            else
-            {
-                return false;
-            }
-        }
-        //TODO: Need to change ADE admin logic 
-        public bool IsUserAuthorized(int edOrgId, List<ESSUserPermissionsEnum> permissions)
-        {
-            if (IsADEorSupportAdmin(permissions))
-            {
-                return true;
-            }
-            var ESSUserPermissionsEnums = this.GetPermissionsForUser(edOrgId);
-            if (ESSUserPermissionsEnums?.Count > 0)
-            {
-                return ESSUserPermissionsEnums.Select(p => p.Permission).Intersect(permissions).Any();
-            }
-            else
-            {
-                return false;
+                permissions.Add(new ESSUserPermission { EntityId = entityId, Permission = permission });
             }
         }
 
-        public bool IsUserUIAuthorized(int edOrgId, List<ESSUserPermissionsEnum> permissions)
-        {
-            if (IsADEAdmin(permissions))
-            {
-                return true;
-            }
-            var ESSUserPermissionsEnums = this.GetPermissionsForUser(edOrgId);
-            if (ESSUserPermissionsEnums?.Count > 0)
-            {
-                return ESSUserPermissionsEnums.Select(p => p.Permission).Intersect(permissions).Any();
-            }
-            else
-            {
-                return false;
-            }
-        }
-        private bool IsADEorSupportAdmin(List<ESSUserPermissionsEnum> permissions)
-        {
-            var adePermissions = this.GetPermissionsForUser(79275);
-            return adePermissions.Any(x => permissions.Contains(x.Permission));
-        }
+        return permissions;
+    }
 
+    private string GetClaim(string claimType) =>
+        GetCurrentUser()?.FindFirst(c => IsClaimType(c, claimType))?.Value ?? string.Empty;
 
-        private bool IsADEAdmin(List<ESSUserPermissionsEnum> permissions)
+    private static IEnumerable<string> GetClaimValues(ClaimsPrincipal user, string claimType) =>
+        user.FindAll(c => IsClaimType(c, claimType)).Select(c => c.Value);
+
+    private static bool IsClaimType(Claim claim, string claimType) =>
+        claim.Type.Equals(claimType, StringComparison.OrdinalIgnoreCase);
+
+    private ClaimsPrincipal? GetCurrentUser()
+    {
+        try
         {
-            var adePermissions = this.GetPermissionsForUser(79275);
-            return adePermissions.Any(x => permissions.Contains(x.Permission));
+            var authState = authStateProvider.GetAuthenticationStateAsync();
+            if (authState.IsCompletedSuccessfully)
+                return authState.Result.User;
+        }
+        catch (InvalidOperationException)
+        {
         }
 
-        private IList<ESSUserPermission> GetPermissionsForUser(int edOrgId = 0)
-        {
-            var ESSUserPermissions = new List<ESSUserPermission>();
-            var claims = GetClaims(_configuration.GetSection("WsFederation:EntityPermissionClaim").Value!);
-
-            if (claims != null)
-            {
-                foreach (var claim in claims)
-                {
-                    var splitPermissions = claim.Split(',');
-                    if (splitPermissions.Length == 2 &&
-                        int.TryParse(splitPermissions[0].Trim(), out int entityId)
-                        &&
-                        EnumExtensions.TryParseEnumDescription(splitPermissions[1].Trim(), out ESSUserPermissionsEnum permission)
-                        )
-                    {
-                        ESSUserPermissions.Add(new ESSUserPermission { EntityId = entityId, Permission = permission });
-                    }
-                }
-            }
-
-            return edOrgId != 0 ? ESSUserPermissions.Where(x => x.EntityId == edOrgId).ToList() : ESSUserPermissions;
-        }
-
-
-        private string GetClaim(string claimKey)
-        {
-            var user = GetCurrentUser();
-            var claim = user?.FindFirst(c => c.Type.Equals(claimKey, StringComparison.InvariantCultureIgnoreCase));
-            return claim?.Value ?? string.Empty;
-        }
-
-
-        private IEnumerable<string> GetClaims(string claimKey)
-        {
-            var user = GetCurrentUser();
-            if (user == null)
-            {
-                return new List<string>();
-            }
-
-            var claims = user.FindAll(c => c.Type.Equals(claimKey, StringComparison.InvariantCultureIgnoreCase)).ToList();
-            return claims.Select(c => c.Value).Distinct().ToList();
-        }
-
-        public string GetFullName()
-        {
-            var firstName = GetFirstName();
-            var lastName = GetLastName();
-            return string.Format("{0} {1}", firstName ?? string.Empty, lastName ?? string.Empty).TrimEnd();
-        }
+        return httpAccessor.HttpContext?.User;
     }
 }

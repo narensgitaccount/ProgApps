@@ -4,11 +4,9 @@ using ADE.ESS.SEPA.Application.Services;
 using ADE.ESS.SEPA.Client.Auth;
 using ADE.ESS.SEPA.Client.Components;
 using ADE.ESS.SEPA.Client.Configurations;
+using ADE.ESS.SEPA.Client.ErrorHandling;
 using ADE.ESS.SEPA.Infrastructure.Context;
 using ADE.ESS.SEPA.Infrastructure.DBRepositories;
-using Microsoft.AspNetCore.Authentication;
-using Microsoft.AspNetCore.Authentication.Cookies;
-using Microsoft.AspNetCore.Authentication.WsFederation;
 using Microsoft.EntityFrameworkCore;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -18,14 +16,7 @@ builder.Services.AddRazorComponents()
     .AddInteractiveServerComponents();
 builder.Services.AddTelerikBlazor();
 
-var configbuilder = new ConfigurationBuilder()
-                .SetBasePath(Directory.GetCurrentDirectory())
-                .AddJsonFile($"appsettings.json", optional: false, reloadOnChange: true)
-                .AddEnvironmentVariables();
-IConfiguration _configuration = configbuilder.Build();
-var useFakeAuth = _configuration.GetValue<bool>("UseFakeAuth");
-var realm = _configuration.GetSection("WsFederation:Wtrealm").Value;
-var metadataAddress = _configuration.GetSection("WsFederation:MetadataAddress").Value;
+var useFakeAuth = builder.Configuration.GetValue<bool>(AdeConnectAuthExtensions.UseFakeAuthSetting);
 
 var conString = builder.Configuration.GetConnectionString("ESSPrivateEDPEntities");
 var sqlConnectionConfiguration = new SqlConnectionConfiguration(value: conString ?? string.Empty);
@@ -48,46 +39,11 @@ else
     builder.Services.AddScoped<IAppStateService, ADE.ESS.SEPA.Client.Services.AppStateService>();
 }
 
-builder.Services.AddSession(options =>
-{
-    options.IdleTimeout = TimeSpan.FromMinutes(60);
-    options.Cookie.HttpOnly = true;
-    // Make the session cookie essential
-    options.Cookie.IsEssential = true;
-});
+builder.Services.AddAdeConnectAuth(builder.Configuration, useFakeAuth);
 
-if (useFakeAuth)
-{
-    // Fake auth: no WS-Federation, just cookie auth with auto-sign-in
-    builder.Services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme)
-        .AddCookie();
-    builder.Services.AddTransient<IESSUserSecurityManager, FakeUserSecurityManager>();
-}
-else
-{
-    builder.Services.AddAuthentication(sharedOptions =>
-    {
-        sharedOptions.DefaultScheme = CookieAuthenticationDefaults.AuthenticationScheme;
-        sharedOptions.DefaultSignInScheme = CookieAuthenticationDefaults.AuthenticationScheme;
-        sharedOptions.DefaultChallengeScheme = WsFederationDefaults.AuthenticationScheme;
-        sharedOptions.DefaultSignOutScheme = WsFederationDefaults.AuthenticationScheme;
-    })
-                    .AddWsFederation(options =>
-                    {
-                        options.Wtrealm = realm;
-                        options.MetadataAddress = metadataAddress;
-                        options.SignOutScheme = CookieAuthenticationDefaults.AuthenticationScheme;
-                        options.TokenHandlers.Clear();
-                        options.TokenHandlers.Add(new CustomSamlSecurityTokenHandler());
-                        options.SignOutScheme = CookieAuthenticationDefaults.AuthenticationScheme;
-                    })
-                    .AddCookie();
-    builder.Services.ConfigureApplicationCookie(options =>
-    {
-        options.Cookie.SameSite = SameSiteMode.None;
-    });
-    builder.Services.AddTransient<IESSUserSecurityManager, ESSUserSecurityManager>();
-}
+builder.Services.AddScoped<IErrorService, ErrorService>();
+builder.Services.AddScoped<ErrorBoundaryService>();
+
 var app = builder.Build();
 //test db connection
 using(var scope = app.Services.CreateScope())
@@ -108,105 +64,7 @@ app.UseStatusCodePagesWithReExecute("/not-found", createScopeForStatusCodePages:
 app.UseAntiforgery();
 app.UseHttpsRedirection();
 app.UseAuthentication();
-app.UseSession();
-//ADEConnect
-app.Use(async (context, next) =>
-{
-    if (context.Request.Path.StartsWithSegments("/signout", StringComparison.OrdinalIgnoreCase))
-    {
-        await context.SignOutAsync(CookieAuthenticationDefaults.AuthenticationScheme);
-
-        foreach (var cookie in context.Request.Cookies)
-        {
-            context.Response.Cookies.Delete(cookie.Key);
-        }
-
-        if (useFakeAuth)
-        {
-            context.Response.Redirect("/");
-            return;
-        }
-
-        await context.SignOutAsync(WsFederationDefaults.AuthenticationScheme, new AuthenticationProperties
-        {
-            RedirectUri = _configuration.GetSection("WsFederation:SignoutURL").Value
-        });
-
-        return;
-    }
-    if (useFakeAuth)
-    {
-        // Fake auth: auto-sign in with a dummy identity if not authenticated
-        if (context.User?.Identity?.IsAuthenticated != true)
-        {
-            var claims = new List<System.Security.Claims.Claim>
-            {
-                new("http://schemas.xmlsoap.org/ws/2005/05/identity/claims/emailaddress", "fake.user@azed.gov"),
-                new("http://schemas.xmlsoap.org/ws/2005/05/identity/claims/givenname", "Fake"),
-                new("http://schemas.xmlsoap.org/ws/2005/05/identity/claims/surname", "User"),
-                new("http://www.azed.gov/claims/Department", "Exceptional Student Services"),
-                new("http://www.azed.gov/claims/entitypermission", "4235,ESS Post School Outcomes")
-            };
-            var identity = new System.Security.Claims.ClaimsIdentity(claims, CookieAuthenticationDefaults.AuthenticationScheme);
-            var principal = new System.Security.Claims.ClaimsPrincipal(identity);
-            await context.SignInAsync(CookieAuthenticationDefaults.AuthenticationScheme, principal);
-            context.User = principal;
-        }
-
-        // Set default entity ID for fake auth
-        bool isQueryStringId = int.TryParse(context.Request.Query["EntityID"].ToString(), out int qsEdOrgID);
-        if (isQueryStringId)
-        {
-            context.Session.SetInt32("DefaultedEntityId", qsEdOrgID);
-        }
-        else if (context.Session.GetInt32("DefaultedEntityId") == null)
-        {
-            context.Session.SetInt32("DefaultedEntityId", 4235);
-        }
-
-        await next.Invoke(context);
-    }
-
-    else
-    {
-        var user = context.User;
-        bool isQueryStringId = int.TryParse(context.Request.Query["EntityID"].ToString(), out int qsEdOrgID);
-        if (isQueryStringId)
-        {
-            context.Session.SetInt32("DefaultedEntityId", qsEdOrgID);
-        }
-        if (user?.Identities.Any(identity => identity.IsAuthenticated) != true)
-            await context.ChallengeAsync();
-        else
-            await next.Invoke(context);
-    }
-    //else
-    //{
-    //    if (context.Request.Path.Equals("/signout"))
-    //    {
-    //        // Redirects
-    //        await context.SignOutAsync(CookieAuthenticationDefaults.AuthenticationScheme);
-    //        foreach (var cookie in context.Request.Cookies)
-    //        {
-    //            context.Response.Cookies.Delete(cookie.Key);
-    //        }
-    //        await context.SignOutAsync(WsFederationDefaults.AuthenticationScheme, new AuthenticationProperties()
-    //        {
-    //            RedirectUri = _configuration.GetSection("WsFederation:SignoutURL").Value
-    //        });
-    //    }
-    //    var user = context.User;
-    //    bool isQueryStringId = int.TryParse(context.Request.Query["EntityID"].ToString(), out int qsEdOrgID);
-    //    if (isQueryStringId)
-    //    {
-    //        context.Session.SetInt32("DefaultedEntityId", qsEdOrgID);
-    //    }
-    //    if (user?.Identities.Any(identity => identity.IsAuthenticated) != true)
-    //        await context.ChallengeAsync();
-    //    else
-    //        await next.Invoke(context);
-    //}
-});
+app.UseAdeConnectAuth(useFakeAuth);
 
 app.UseAuthorization();
 

@@ -1,23 +1,22 @@
-namespace ADE.ESS.SEPA.Client.Auth
+namespace ADE.ESS.SEPA.Client.Auth;
+
+public interface IESSUserSecurityManager
 {
-    public interface IESSUserSecurityManager
-    {
-        bool IsUserAuthorized();
+    bool IsUserAuthorized(int edOrgId, ESSUserPermissionsEnum permission);
 
-        bool IsUserAuthorized(int edOrgId, ESSUserPermissionsEnum permission);
+    bool IsUserAuthorized(int edOrgId, IReadOnlyCollection<ESSUserPermissionsEnum> permissions);
 
-        bool IsUserAuthorized(int edOrgId, List<ESSUserPermissionsEnum> permissions);
+    bool IsUserUIAuthorized(int edOrgId, IReadOnlyCollection<ESSUserPermissionsEnum> permissions);
 
-        string GetFullName();
+    IList<ESSUserPermission> GetEntityPermissions(int edOrg = 0);
 
-        string GetDepartment();
+    string GetFullName();
 
-        IList<ESSUserPermission> GetEntityPermissions(int edOrg = 0);
-        string GetFirstName();
+    string GetDepartment();
 
-        string GetLastName();
-        string GetEmail();
+    string GetFirstName();
 
-        bool IsUserUIAuthorized(int edOrgId, List<ESSUserPermissionsEnum> permissions);
-    }
+    string GetLastName();
+
+    string GetEmail();
 }
