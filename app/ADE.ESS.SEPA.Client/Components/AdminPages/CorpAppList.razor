@@ -1,0 +1,333 @@
+﻿@page "/corpAppList"
+@using ADE.ESS.SEPA.Application.DTOs
+@using ADE.ESS.SEPA.Application.Services
+@using Telerik.Blazor
+@using Telerik.Blazor.Components
+@using Telerik.Blazor.Components.Common.Icon
+@inject NavigationManager Navigation
+@inject ADE.ESS.SEPA.Application.Interfaces.IDashboardService DashboardService
+<PageTitle>Applications List</PageTitle>
+<div class="application-page">
+    <div class="page-heading">
+        <h1>Applications List</h1>
+        <div class="fiscal-year">
+            <label for="fiscalYear">Fiscal Year</label>
+            <select id="fiscalYear" value="@FiscalYear" disabled="@IsLoading" @onchange="OnFiscalYearChanged">
+                @foreach (var year in FiscalYears)
+                {
+                    <option value="@year">@($"FY {year}")</option>
+                }
+            </select>
+        </div>
+    </div>
+    <section class="filter-panel">
+        <input class="search-input" type="search" placeholder="Search applications..." @bind="SearchText" @bind:event="oninput" />
+        <div class="filter-buttons">
+            @foreach (var filter in AvailableFilters)
+            {
+                <button type="button" class="filter-button @(SelectedFilters.Contains(filter) ? "selected" : "")" aria-pressed="@SelectedFilters.Contains(filter)" @onclick="() => ToggleFilter(filter)">     @filter    </button>
+            }
+            <button type="button" class="clear-button" @onclick="ClearFilters">   Clear filters  </button>
+        </div>
+    </section>
+    @if (IsLoading)
+    {
+        <p role="status">Loading application details...</p>
+    }
+    else if (!string.IsNullOrWhiteSpace(ErrorMessage))
+    {
+        <p role="alert">@ErrorMessage</p>
+        <button type="button" @onclick="LoadApplicationsAsync">
+            Retry
+        </button>
+    }
+    else
+    {
+        <p class="result-count">
+            @FilteredApplications.Count applications
+        </p>
+        <TelerikGrid TItem="ApplicationListDto" Data="@FilteredApplications" Pageable="true" Sortable="true" PageSize="5" Resizable="true" Class="application-grid" OnRowClick="@OnApplicationrowClick">
+            <GridColumns>
+                <GridColumn Field="@nameof(ApplicationListDto.CorporateName)" Width="40%" Title="Entity Name" />
+                <GridColumn Field="@nameof(ApplicationListDto.StatusDescription)" Width="10%" Title="Status" />
+                <GridColumn Field="@nameof(ApplicationListDto.ProgramType)" Width="10%" Title="Program Type" />
+                <GridColumn Field="@nameof(ApplicationListDto.SOASigned)" Width="10%" Title="SOA">
+                    <Template Context="item">
+                        @{
+                            var application = (ApplicationListDto)item;
+                        }
+                        @if (application.SOASigned == true)
+                        {
+<span>✅</span> @* <TelerikIcon Name="check-circle" ThemeColor="success" Size="lg" /> *@}
+                        else
+                            {
+                                <span>➖</span> @* <TelerikIcon Name="minus-circle" ThemeColor="secondary" Size="lg" /> *@}
+                            </Template>
+                        </GridColumn>
+                        <GridColumn Field="@nameof(ApplicationListDto.EntityInfo)" Width="10%" Title="Entity Info">
+                            <Template Context="item">
+                                @{
+                                    var application = (ApplicationListDto)item;
+                                }
+                                @if (application.EntityInfo == true)
+                                {
+                                    <span>✅</span>
+                                }
+                                else
+                                {
+                                    <span>➖</span>
+                                }
+                            </Template>
+                        </GridColumn>
+                        <GridColumn Field="@nameof(ApplicationListDto.ProgramInfo)" Width="10%" Title="Program Info">
+                            <Template Context="item">
+                                @{
+                                    var application = (ApplicationListDto)item;
+                                }
+                                @if (application.ProgramInfo == true)
+                                {
+                                    <span>✅</span>
+                                }
+                                else
+                                {
+                                    <span>➖</span>
+                                }
+                            </Template>
+                        </GridColumn>
+                        <GridColumn Field="@nameof(ApplicationListDto.Sites)" Width="10%" Title="Sites" />
+                    </GridColumns>
+                </TelerikGrid>
+            }
+        </div>
+@code {
+    private int FiscalYear = 2027;
+    private List<int> FiscalYears = [];
+    private List<ApplicationListDto> Applications = [];
+    private readonly string[] AvailableFilters = ["Private", "Public", "RTC", "Queue"];
+    private HashSet<string> SelectedFilters = ["Queue"];
+    private string SearchText = string.Empty;
+    private bool IsLoading = true;
+    private string? ErrorMessage;
+    private List<ApplicationListDto> FilteredApplications => Applications.Where(MatchesSelectedFilters).Where(MatchesSearch).ToList();
+    protected override async Task OnInitializedAsync()
+    {
+        try
+        {
+            FiscalYears = await DashboardService.GetFiscalYearsAsync(5);
+            if (FiscalYears.Count > 0 &&
+             !FiscalYears.Contains(FiscalYear))
+            {
+                FiscalYear = FiscalYears.Max();
+            }
+            await LoadApplicationsAsync();
+        }
+        catch (Exception)
+        {
+            ErrorMessage = "Unable to load fiscal years.";
+        }
+        finally
+        {
+            IsLoading = false;
+        }
+    }
+    private async Task OnFiscalYearChanged(
+     ChangeEventArgs args)
+    {
+        if (int.TryParse(args.Value?.ToString(), out var year) && FiscalYears.Contains(year))
+        {
+            FiscalYear = year;
+            SearchText = string.Empty;
+            await LoadApplicationsAsync();
+        }
+    }
+    private async Task LoadApplicationsAsync()
+    {
+        IsLoading = true;
+        ErrorMessage = null;
+        try
+        {
+            Applications = await DashboardService.GetApplicationListAsync(FiscalYear);
+        }
+        catch (Exception)
+        {
+            Applications = [];
+            ErrorMessage = "Unable to load applications.";
+        }
+        finally
+        {
+            IsLoading = false;
+        }
+    }
+    private void ToggleFilter(string filter)
+    {
+        if (!SelectedFilters.Add(filter))
+        {
+            SelectedFilters.Remove(filter);
+        }
+    }
+    private void ClearFilters()
+    {
+        SelectedFilters.Clear();
+        SearchText = string.Empty;
+    }
+    private bool MatchesSelectedFilters(
+     ApplicationListDto application)
+    {
+        var typeFilters = SelectedFilters.Where(x => x != "Queue").ToHashSet();
+        // No type filters means all program types.
+        var matchesType = typeFilters.Count == 0 || (application.ProgramType != null && typeFilters.Contains(application.ProgramType));
+        // Queue combines with the selected type filters.
+        var matchesQueue = !SelectedFilters.Contains("Queue") || application.IsQueue == true;
+        return matchesType && matchesQueue;
+    }
+    private bool MatchesSearch(ApplicationListDto application)
+    {
+        if (string.IsNullOrWhiteSpace(SearchText))
+        {
+            return true;
+        }
+        var search = SearchText.Trim();
+        return (application.CorporateName?.Contains(search, StringComparison.OrdinalIgnoreCase) ?? false) || application.ApplicationID.ToString().Contains(search) || (application.ProgramType?.Contains(search, StringComparison.OrdinalIgnoreCase) ?? false);
+    }
+    private void OnApplicationrowClick(GridRowClickEventArgs args)
+    {
+        if (args.Item is not ApplicationListDto application) { return; }
+        if (application.AppType is null) { return; }
+        var url = $"/CorpAppDashboard?appType={application.AppType.Value}" + $"&applicationId={application.ApplicationID}";
+        Navigation.NavigateTo(url);
+    }
+}
+<style>
+    .application-page {
+        padding: 30px;
+        padding-bottom: 150px;
+        padding-top: 24px;
+        color: #1d1b20;
+    }
+
+        .application-page .table {
+            width: 100%;
+        }
+
+    .page-heading {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 20px;
+        margin-bottom: 24px;
+    }
+
+        .page-heading h1 {
+            margin: 0;
+            color: #002d72;
+            font-size: 32px;
+            font-weight: 700;
+        }
+
+    .fiscal-year {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+    }
+
+        .fiscal-year select,
+        .search-input {
+            min-height: 40px;
+            padding: 8px 12px;
+            border: 1px solid #002d72;
+            border-radius: 4px;
+            background: white;
+            color: #002d72;
+        }
+
+    .filter-panel {
+        display: flex;
+        align-items: center;
+        flex-wrap: wrap;
+        gap: 16px;
+        padding: 16px;
+        margin-bottom: 20px;
+        border-radius: 12px;
+        background: #e9e9e9;
+        box-shadow: 0 1px 3px #00000026;
+        outline: 1px solid;
+    }
+
+    .search-input {
+        width: min(300px, 100%);
+    }
+
+    .filter-buttons {
+        display: flex;
+        flex-wrap: wrap;
+        margin-left: auto;
+        margin-right: 0;
+        width: fit-content;
+    }
+
+    .filter-button {
+        padding: 10px 24px;
+        border: 1px solid #002d72;
+        background: white;
+        color: #002d72;
+        cursor: pointer;
+        margin-left: auto;
+    }
+
+        .filter-button.selected {
+            background: #910048;
+            color: white;
+        }
+
+    .clear-button {
+        padding: 9px 14px;
+        border: 0;
+        background: transparent;
+        color: #002d72;
+        cursor: pointer;
+    }
+
+    .result-count {
+        color: #555;
+        margin-bottom: 12px;
+    }
+
+    .application-grid {
+        border-radius: 8px;
+        overflow: hidden;
+        width: 100% !important;
+        outline: 1px solid;
+        width: 100%;
+    }
+
+        .application-grid .k-grid-header {
+            background: #f6f7f9;
+        }
+
+        .application-grid .k-table-tbody tr:nth-child(even) {
+            background-color: #f8f9fa;
+        }
+
+        .application-grid .k-table-tbody tr:nth-child(odd) {
+            background-color: #ffffff;
+        }
+
+        .application-grid .k-table-td,
+        .application-grid .k-table-th {
+            padding: 12px 16px;
+        }
+
+        .application-grid .k-table-tbody tr:hover {
+            background-color: #e8f4ff !important;
+            transition: background-color 0.2s ease;
+            cursor: pointer;
+        }
+
+        .application-grid .k-grid-table {
+            width: 100%;
+        }
+
+        .application-grid .k-table-md {
+            width: 100% !important;
+        }
+</style>

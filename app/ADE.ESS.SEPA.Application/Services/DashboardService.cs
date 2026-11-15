@@ -1,9 +1,5 @@
 ﻿using ADE.ESS.SEPA.Application.DTOs;
 using ADE.ESS.SEPA.Application.Interfaces;
-using System;
-using System.Collections.Generic;
-using System.Text;
-using static System.Net.Mime.MediaTypeNames;
 
 namespace ADE.ESS.SEPA.Application.Services
 {
@@ -15,29 +11,44 @@ namespace ADE.ESS.SEPA.Application.Services
             _repository = repository;
         }
 
-        public  Task<PrivateSchoolApplicationDto> GetPrivateSchoolApplication(int applicationId)
+        public Task<PrivateSchoolApplicationDto> GetPrivateSchoolApplication(int applicationId)
         {
-            return  _repository.GetPrivateSchoolApplication(applicationId);
+            return _repository.GetPrivateSchoolApplication(applicationId);
         }
-
         public async Task<string> GetLookupManagementValue(string lookupname)
         {
             return await _repository.GetLookupManagementValue(lookupname);
         }
-        public List<int> GetFiscalyears()
+        public Task<List<int>> GetFiscalYearsAsync(int count)
         {
-            return _repository.GetFiscalyears();
+            return _repository.GetFiscalYearsAsync(count);
+        }
+        public async Task<int> GetActiveFiscalYearAsync()
+        {
+            return await _repository.GetActiveFiscalYearAsync();
+        }
+        public Task<List<ApplicationListDto>> GetApplicationListAsync(int fiscalYear)
+        {
+            return _repository.GetApplicationListAsync(fiscalYear);
         }
 
-        public int GetActiveFiscalYear()
+        public async Task<List<StatusTypeDto>> GetStatusTypesAsync()
         {
-            return _repository.GetActiveFiscalYear();
+            return await _repository.GetStatusTypesAsync();
         }
-     
-        //public async Task<PrivateSchoolApplicationDto> GetPrivateSchoolApplication(int applicationId);
-        // {
+        public async Task<string> GetStatusDescriptionAsync(int statusId)
+        {
+            return await _repository.GetStatusDescriptionAsync(statusId);
+        }
 
-        //     return await _repository.GetPrivateSchoolApplication(applicationId);
-        // }
+        public Task<List<SiteApplicationCardDto>> GetSiteApplicationList(int applicationKey)
+        {
+            return _repository.GetSiteApplicationList(applicationKey);
+        }
+
+        public Task<ApplicationListDto> GetCorpAppDashboard(int applicationId)
+        {
+            return _repository.GetCorpAppDashboard(applicationId);
+        }
     }
 }

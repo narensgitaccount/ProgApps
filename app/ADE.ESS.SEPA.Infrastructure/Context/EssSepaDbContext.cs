@@ -162,6 +162,7 @@ public partial class EssSepaDbContext : DbContext
                 .HasMaxLength(500)
                 .IsUnicode(false);
             entity.Property(e => e.LastCertifiedDate).HasColumnType("datetime");
+            entity.Property(e => e.LastCertifiedUserName).HasMaxLength(400);
             entity.Property(e => e.LastModifiedBy)
                 .HasMaxLength(100)
                 .IsUnicode(false);
@@ -714,6 +715,7 @@ public partial class EssSepaDbContext : DbContext
             entity.Property(e => e.IsStudentDemoKto12).HasDefaultValue(0);
             entity.Property(e => e.IsStudentDemoMET).HasDefaultValue(0);
             entity.Property(e => e.LastCertifiedDate).HasColumnType("datetime");
+            entity.Property(e => e.LastCertifiedUserName).HasMaxLength(400);
             entity.Property(e => e.LastModifiedBy)
                 .HasMaxLength(100)
                 .IsUnicode(false);

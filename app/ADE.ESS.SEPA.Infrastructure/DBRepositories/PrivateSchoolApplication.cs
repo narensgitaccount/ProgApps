@@ -151,6 +151,10 @@ public partial class PrivateSchoolApplication
 
     public bool? IsCurrent { get; set; }
 
+    public string? LastCertifiedUserName { get; set; }
+
+    public bool? IsChangeCertified { get; set; }
+
     public virtual StateAbbreviation? CorporateMailingState { get; set; }
 
     public virtual FiscalYearsLookup FiscalYearNavigation { get; set; } = null!;

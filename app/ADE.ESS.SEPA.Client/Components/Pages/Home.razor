@@ -9,27 +9,10 @@
 @inject AuthenticationStateProvider AuthenticationStateProvider
 @inject NavigationManager Navigation
 @rendermode @(new InteractiveServerRenderMode(prerender: false))
+@using System.Text.RegularExpressions
 
 <PageTitle>SEPA Portal</PageTitle>
 
-@* <h1>Hello, ADE!</h1>
-
-Welcome to your new app.
-<br />
-<br />
-
-<TelerikButton OnClick="OpenDesignPage">    Open Telerik Components Design Demo Page</TelerikButton>
-<br />
-<br />
-
-<TelerikButton OnClick="OpenDemoDashboardPage">    Open Dashboard Components Demo Page</TelerikButton>
-
-<br />
-<br />
-
-<TelerikButton OnClick="@(() => OpenUnderConstructionPage("Open Application Dashboard", "DashboardPage"))">
-    Open Application Dashboard
-</TelerikButton> *@
 @if (IsLoading)
 {
     <p>loading Application details...</p>
@@ -38,13 +21,10 @@ else
 {
     <div id="homePageText" style="text-align: left;">
         <div style="margin-left: 2%; margin-right: 2%">
-            @((MarkupString)WebUtility.HtmlDecode(HomeText))
+            @((MarkupString)PrepareHomeText(HomeText))
         </div>
     </div>
-  
 }
-
-
 
 @code {
     private bool IsLoading = true;
@@ -72,19 +52,32 @@ else
         }
     }
 
-    private void OpenUnderConstructionPage(string  label, string legacyPage)
+    private void OpenUnderConstructionPage(string label, string legacyPage)
     {
         var Url = $"/under-construction?page={Uri.EscapeDataString(label)}&legacy={Uri.EscapeDataString(legacyPage)}";
-         Navigation.NavigateTo(Url);
+        Navigation.NavigateTo(Url);
     }
     private void OpenDesignPage()
     {
-         Navigation.NavigateTo("/TelerikDemoPage");
+        Navigation.NavigateTo("/TelerikDemoPage");
     }
 
     
     private void OpenDemoDashboardPage()
     {
-         Navigation.NavigateTo("/DemoDashboard");
+        Navigation.NavigateTo("/DemoDashboard");
+    }
+    private string PrepareHomeText(string html)
+    {
+        if (string.IsNullOrWhiteSpace(html))
+            return string.Empty;
+
+        html = WebUtility.HtmlDecode(html);
+
+        return Regex.Replace(
+            html,
+            @"<a\b(?![^>]*\btarget\s*=)([^>]*)>",
+            "<a target=\"_blank\" rel=\"noopener noreferrer\"$1>",
+            RegexOptions.IgnoreCase);
     }
 }

@@ -1,15 +1,19 @@
 ﻿using ADE.ESS.SEPA.Application.DTOs;
-using System;
-using System.Collections.Generic;
-using System.Text;
 
 namespace ADE.ESS.SEPA.Application.Interfaces
 {
     public interface IDashboardService
     {
-        Task<PrivateSchoolApplicationDto> GetPrivateSchoolApplication(int applicationId);
-        public List<int> GetFiscalyears();
-        public int GetActiveFiscalYear();
+        public Task<PrivateSchoolApplicationDto> GetPrivateSchoolApplication(int applicationId);
+        public Task<List<int>> GetFiscalYearsAsync(int count);
+        public Task<int> GetActiveFiscalYearAsync();
         public Task<string> GetLookupManagementValue(string lookupname);
+        public Task<List<ApplicationListDto>> GetApplicationListAsync(int fiscalYear);
+
+        public Task<List<StatusTypeDto>> GetStatusTypesAsync();
+        public Task<string> GetStatusDescriptionAsync(int statusId);
+        public Task<List<SiteApplicationCardDto>> GetSiteApplicationList(int applicationKey);
+        public Task<ApplicationListDto> GetCorpAppDashboard(int applicationId);
+
     }
 }

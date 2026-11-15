@@ -1,0 +1,70 @@
+﻿@using ADE.ESS.SEPA.Application.DTOs
+<nav class="sepa-breadcrumbs"
+     aria-label="Breadcrumb">
+
+    <ol>
+        @foreach (var item in Items)
+        {
+            <li @key="item.Text">
+                @if (item.IsCurrent)
+                {
+                    <span aria-current="page" class="sepa-breadcrumb-current">  @item.Text </span>
+                }
+                else
+                {
+                    <a href="@item.Url">  @item.Text </a>
+                }
+            </li>
+        }
+    </ol>
+</nav>
+@code {
+    [Parameter]
+    public List<BreadcrumbItemDto> Items { get; set; } = [];
+}
+<style>
+    >
+    SePaBreadcrumbs.razor.css
+    .sepa-breadcrumbs {
+        margin-bottom: 20px;
+    }
+
+    .sepa-breadcrumbs ol {
+        display: flex;
+        align-items: center;
+        flex-wrap: wrap;
+        gap: 8px;
+        margin: 0;
+        padding: 0;
+        list-style: none;
+    }
+
+    .sepa-breadcrumbs li {
+        display: inline-flex;
+        align-items: center;
+        color: #666666;
+        font-family: Lato, sans-serif;
+        font-size: 13px;
+        line-height: 20px;
+    }
+
+        .sepa-breadcrumbs li:not(:last-child)::after {
+            content: "/";
+            margin-left: 8px;
+            color: #9ca3af;
+        }
+
+    .sepa-breadcrumbs a {
+        color: #002d72;
+        text-decoration: none;
+    }
+
+        .sepa-breadcrumbs a:hover {
+            text-decoration: underline;
+        }
+
+    .sepa-breadcrumb-current {
+        color: #444444;
+        font-weight: 700;
+    }
+</style>

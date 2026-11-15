@@ -91,6 +91,10 @@ public partial class EDPApplication
 
     public bool? IsCurrent { get; set; }
 
+    public string? LastCertifiedUserName { get; set; }
+
+    public bool? IsChangeCertified { get; set; }
+
     public virtual FiscalYearsLookup FiscalYearNavigation { get; set; } = null!;
 
     public virtual StatusType Status { get; set; } = null!;

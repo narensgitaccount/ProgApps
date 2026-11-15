@@ -1,0 +1,342 @@
+﻿@page "/CorpAppDashboard"
+
+@rendermode InteractiveServer
+
+@using ADE.ESS.SEPA.Application.DTOs
+@using Telerik.Blazor.Components
+
+<PageTitle>SEPA Application Dashboard</PageTitle>
+
+<div class="sepa-dashboard">
+
+    @* ----------------------------------------------------------
+       Loading
+       ---------------------------------------------------------- *@
+
+    @if (IsLoading)
+    {
+        <div class="sepa-loading-container">
+            <TelerikLoaderContainer Visible="true" LoaderType="@LoaderType.ConvergingSpinner" ThemeColor="@ThemeConstants.Loader.ThemeColor.Base" Class="sepa-light-overlay">
+                <Template>
+                    <div class="sepa-loading-content">
+                        <TelerikLoader Type="@LoaderType.ConvergingSpinner" Size="@ThemeConstants.Loader.Size.Large" />
+                        <span>                            Loading application details...                        </span>
+                    </div>
+                </Template>
+            </TelerikLoaderContainer>
+        </div>
+        <style>
+            .sepa-light-overlay .k-loader-container-overlay {
+                background-color: rgba(255, 255, 255, 0.7);
+            }
+        </style>
+    }
+
+    @* ----------------------------------------------------------
+       Error
+       ---------------------------------------------------------- *@
+
+    else if (HasError)
+    {
+        <div class="sepa-error-message">
+            <div class="sepa-error-icon">
+                !
+            </div>
+            <div class="sepa-error-content">
+                <strong> Unable to load application </strong>
+                <p>                   @ErrorMessage                </p>
+                <TelerikButton ThemeColor="@ThemeConstants.Button.ThemeColor.Primary" OnClick="@LoadApplicationAsync">
+                    Retry
+                </TelerikButton>
+            </div>
+        </div>
+    }
+
+    @* ----------------------------------------------------------
+       Application
+       ---------------------------------------------------------- *@
+    else if (Application is not null)
+    {
+        <Breadcrumbs Items="@BreadcrumbItems" />
+
+
+        @* ------------------------------------------------------
+           Application header
+           ------------------------------------------------------ *@
+
+        <div class="sepa-application-header">
+            <div class="sepa-application-heading">
+                <div class="sepa-title-row">
+                    <h1>  Application Dashboard </h1>
+                    <span class="sepa-status-badge">  @Application.StatusDescription </span>
+                </div>
+                <div class="sepa-entity-name">
+                    @Application.EntityID - @Application.CorporateName
+                </div>
+                <div class="sepa-application-id">
+                    Application ID: @Application.ApplicationID
+                </div>
+            </div>
+
+            @* --------------------------------------------------
+               Fiscal year
+               -------------------------------------------------- *@
+
+            <div class="sepa-dashboard-toolbar">
+                <div class="sepa-fiscal-year">
+                    <label>Fiscal Year </label>
+                    <strong>  @SelectedFiscalYear </strong>
+                </div>
+            </div>
+
+
+            @* --------------------------------------------------
+               Application actions
+               -------------------------------------------------- *@
+
+            <div class="sepa-dashboard-toolbar">
+
+                <TelerikDropDownButton ThemeColor="@ThemeConstants.Button.ThemeColor.Primary" Enabled="@AvailableActions.Any()">
+                    <DropDownButtonContent>                        Application Actions                    </DropDownButtonContent>
+                    <DropDownButtonItems>
+                        @foreach (var action in AvailableActions)
+                        {
+                            <DropDownButtonItem OnClick="@(() => OnApplicationActionClicked(action.ActionID))">
+                                @action.Description
+                            </DropDownButtonItem>
+                        }
+                    </DropDownButtonItems>
+                </TelerikDropDownButton>
+            </div>
+        </div>
+
+
+        @* ------------------------------------------------------
+           Dashboard content
+           ------------------------------------------------------ *@
+
+        <div class="sepa-dashboard-content">
+
+
+            @* --------------------------------------------------
+               Application information
+               -------------------------------------------------- *@
+
+            <section class="sepa-dashboard-card">
+                <div class="sepa-card-header">
+                    <h2>  Application Information </h2>
+                </div>
+                <div class="sepa-card-body">
+                    <div class="sepa-information-grid">
+                        <div class="sepa-information-item">
+                            <label>Application ID  </label>  <span>  @Application.ApplicationID  </span>
+                        </div>
+                        <div class="sepa-information-item">
+                            <label>  Application Type  </label>  <span>  @Application.ProgramType </span>
+                        </div>
+                        <div class="sepa-information-item">
+                            <label>   Corporate Name   </label>  <span>  @Application.CorporateName  </span>
+                        </div>
+                        <div class="sepa-information-item">
+                            <label>  Status</label>  <span class="sepa-status-badge">  @Application.StatusDescription </span>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+
+            @* --------------------------------------------------
+               Staff list
+               -------------------------------------------------- *@
+
+            <section class="sepa-dashboard-card">
+                <div class="sepa-card-header"> <h2>   Staff List   </h2> </div>
+                <div class="sepa-card-body">
+                    <div class="sepa-section-action">
+                        <p>   Review the staff associated with this application. </p>
+                        <TelerikButton ThemeColor="@ThemeConstants.Button.ThemeColor.Primary" OnClick="@NavigateToStaffList">  Staff List  </TelerikButton>
+                    </div>
+                </div>
+            </section>
+
+            @* --------------------------------------------------
+               Statement of assurance
+               -------------------------------------------------- *@
+
+            <section class="sepa-dashboard-card">
+                <div class="sepa-card-header">
+                    <h2> Statement of Assurance </h2>
+                </div>
+                <div class="sepa-card-body">
+                    <div class="sepa-assurance-row">
+                        <div class="sepa-assurance-information">
+                            <strong> Statement of Assurance </strong>
+                            <span class="sepa-status-badge">
+                                @(Application.SOASigned == true ? "Signed" : "Not Completed")
+                            </span>
+                        </div>
+                        <TelerikButton ThemeColor="@ThemeConstants.Button.ThemeColor.Primary" OnClick="@NavigateToAssurance">  View/Edit  </TelerikButton>
+                    </div>
+                </div>
+            </section>
+
+            @* --------------------------------------------------
+               Document upload
+               -------------------------------------------------- *@
+
+            <section class="sepa-dashboard-card">
+                <div class="sepa-card-header">
+                    <h2>  Document Upload </h2>
+                </div>
+                <div class="sepa-card-body">
+                    <div class="sepa-document-upload">
+                        <div class="sepa-document-upload-title">  Optional Document Upload </div>
+                        <TelerikUpload AutoUpload="false" Multiple="true" AllowedExtensions="@AllowedDocumentExtensions" />
+                        <p class="sepa-document-help">
+                            Upload supporting documents for this application.
+                        </p>
+                    </div>
+                </div>
+            </section>
+
+
+            @* --------------------------------------------------
+               Site applications
+               -------------------------------------------------- *@
+
+            <section class="sepa-dashboard-card">
+                <div class="sepa-card-header">
+                    <h2>  Site Applications </h2>
+                    <span class="sepa-section-count">
+                        @(FilteredSiteApplicationCardList?.Count ?? 0)
+                    </span>
+                </div>
+                <div class="sepa-card-body">
+
+
+                    @* Search *@
+
+                    <div class="site-application-toolbar">
+                        <div class="site-application-search">
+                            <TelerikTextBox Value="@SiteSearchText" ValueChanged="@OnSiteSearchChanged" Placeholder="Search sites, programs, status..." Width="100%" />
+                        </div>
+                        <div class="site-application-count">
+                            @FilteredSiteApplicationCardList.Count site(s)
+                        </div>
+                    </div>
+
+
+                    @* Empty state *@
+
+                    @if ((SiteApplicationCardList?.Count ?? 0) == 0)
+                    {
+                        <div class="site-application-empty">
+                            <strong>  No site applications found  </strong>
+                            <p>
+                                There are no current site applications
+                                associated with this application.
+                            </p>
+                        </div>
+                    }
+
+                    else if (FilteredSiteApplicationCardList.Count == 0)
+                    {
+                        <div class="site-application-empty">
+                            <strong>   No matching sites  </strong>
+                            <p>  Try a different search term.  </p>
+                        </div>
+                    }
+
+                    else
+                    {
+
+                        @* Telerik grid *@
+
+                        @*      <TelerikGrid TItem="SiteApplicationCardDto"
+                                     Data="@FilteredSiteApplicationCardList"
+                                     Pageable="true"
+                                     Sortable="true"
+                                     PageSize="12"
+                                     Class="site-applications-grid">
+
+                            <GridColumns>
+        
+                                <GridColumn Title="Site Applications"
+                                            Context="site">
+
+                                    <Template>
+                                        <SiteApplicationCard Site="(SiteApplicationCardDto)site" />
+                                    </Template>
+
+                                </GridColumn>
+
+                            </GridColumns>
+
+                        </TelerikGrid> *@
+
+
+                        <div class="site-card-grid">
+                            @foreach (var site in PagedSiteApplicationCardList)
+                            {
+                                <div class="site-card-grid-item" @key="site.SiteID">
+                                    <SiteApplicationCard Site="@site" />
+                                </div>
+                            }
+                        </div>
+                    }
+
+                </div>
+
+            </section>
+
+
+            @* --------------------------------------------------
+               Application history
+               -------------------------------------------------- *@
+
+            <section class="sepa-dashboard-card">
+                <div class="sepa-card-header">
+                    <h2>  Application History  </h2>
+                </div>
+                <div class="sepa-card-body">
+                    @if (IsHistoryLoading)
+                    {
+                        <div class="sepa-history-loading">
+                            <TelerikLoader Type="@LoaderType.ConvergingSpinner" Size="@ThemeConstants.Loader.Size.Medium" />
+                            <span> Loading application history... </span>
+                        </div>
+                    }
+
+                    else if (ApplicationHistory.Count == 0)
+                    {
+                        <div class="sepa-history-empty">
+                            No application history available.
+                        </div>
+                    }
+
+                    else
+                    {
+
+                        <TelerikGrid TItem="ApplicationHistoryDto" Data="@ApplicationHistory" Pageable="true" PageSize="5" Sortable="true" Resizable="true" Class="sepa-history-grid">
+                            <GridColumns>
+                                <GridColumn Field="@nameof(ApplicationHistoryDto.ChangedDate)" Title="Date" Width="180px">
+                                    <Template Context="item">
+                                        @{
+                                            var history = (ApplicationHistoryDto)item;
+                                        }
+                                        @history.ChangedDate.ToString("MM/dd/yyyy hh:mm tt")
+                                    </Template>
+                                </GridColumn>
+                                <GridColumn Field="@nameof(ApplicationHistoryDto.ChangedBy)" Title="Changed By" Width="200px" />
+                                <GridColumn Field="@nameof(ApplicationHistoryDto.Description)" Title="Description" />
+                            </GridColumns>
+                        </TelerikGrid>
+                    }
+
+                </div>
+            </section>
+        </div>
+
+    }
+
+</div>

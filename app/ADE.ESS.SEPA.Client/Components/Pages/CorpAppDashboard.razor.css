@@ -1,0 +1,536 @@
+/* CSS for CorpAppDashboard component */
+/* ============================================================
+   Dashboard
+   ============================================================ */
+
+.sepa-dashboard {
+    width: 100%;
+    min-height: 100%;
+    padding: 28px 30px 40px;
+    background: #ffffff;
+    box-sizing: border-box;
+}
+
+
+/* ============================================================
+   Header
+   ============================================================ */
+
+.sepa-application-header {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 20px;
+    margin-bottom: 28px;
+}
+
+.sepa-application-heading {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    min-width: 0;
+}
+
+.sepa-title-row {
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 16px;
+}
+
+    .sepa-title-row h1 {
+        margin: 0;
+        color: #002d72;
+        font-family: Montserrat, sans-serif;
+        font-size: 32px;
+        font-weight: 700;
+        line-height: 40px;
+    }
+
+.sepa-entity-name {
+    color: #002d72;
+    font-family: Lato, sans-serif;
+    font-size: 18px;
+    font-weight: 400;
+    line-height: 28px;
+    text-transform: uppercase;
+    letter-spacing: 0.72px;
+    overflow-wrap: anywhere;
+}
+
+.sepa-application-id {
+    color: #002d72;
+    font-family: Lato, sans-serif;
+    font-size: 14px;
+    line-height: 20px;
+}
+
+
+/* ============================================================
+   Status
+   ============================================================ */
+
+.sepa-status-badge {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: fit-content;
+    max-width: 100%;
+    padding: 5px 12px;
+    border: 1px solid #dce8fa;
+    border-radius: 999px;
+    background: #ebf3fe;
+    color: #002d72;
+    font-family: Lato, sans-serif;
+    font-size: 11px;
+    font-weight: 700;
+    line-height: 16px;
+    letter-spacing: 0.35px;
+    white-space: normal;
+    overflow-wrap: anywhere;
+}
+
+
+/* ============================================================
+   Toolbar
+   ============================================================ */
+
+.sepa-dashboard-toolbar {
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    gap: 12px;
+}
+
+.sepa-fiscal-year {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    color: #002d72;
+    font-family: Lato, sans-serif;
+    font-size: 14px;
+}
+
+    .sepa-fiscal-year label {
+        font-weight: 700;
+    }
+
+    .sepa-fiscal-year strong {
+        font-weight: 700;
+    }
+
+
+/* ============================================================
+   Sections
+   ============================================================ */
+
+.sepa-dashboard-content {
+    display: flex;
+    flex-direction: column;
+    gap: 24px;
+}
+
+.sepa-dashboard-card {
+    width: 100%;
+    min-width: 0;
+    background: #ffffff;
+    border: 1px solid #e5e7eb;
+    border-radius: 12px;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.12), 0 1px 2px rgba(0, 0, 0, 0.08);
+    overflow: hidden;
+}
+
+.sepa-card-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    padding: 20px 24px;
+    border-bottom: 1px solid #e5e7eb;
+}
+
+    .sepa-card-header h2 {
+        margin: 0;
+        color: #002d72;
+        font-family: Montserrat, sans-serif;
+        font-size: 24px;
+        font-weight: 700;
+        line-height: 36px;
+    }
+
+.sepa-section-count {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 28px;
+    padding: 3px 8px;
+    border-radius: 999px;
+    background: #ebf3fe;
+    color: #002d72;
+    font-size: 12px;
+    font-weight: 700;
+}
+
+.sepa-card-body {
+    padding: 24px;
+}
+
+
+/* ============================================================
+   Application information
+   ============================================================ */
+
+.sepa-information-grid {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 24px;
+}
+
+.sepa-information-item {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    min-width: 0;
+}
+
+    .sepa-information-item label {
+        color: #666666;
+        font-family: Lato, sans-serif;
+        font-size: 13px;
+        font-weight: 700;
+        line-height: 20px;
+        text-transform: uppercase;
+        letter-spacing: 0.35px;
+    }
+
+    .sepa-information-item > span {
+        color: #1d1b20;
+        font-family: Lato, sans-serif;
+        font-size: 14px;
+        font-weight: 400;
+        line-height: 22px;
+        overflow-wrap: anywhere;
+    }
+
+
+/* ============================================================
+   Staff / assurance
+   ============================================================ */
+
+.sepa-section-action {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 16px;
+}
+
+    .sepa-section-action p {
+        margin: 0;
+        color: #666666;
+        font-size: 14px;
+        line-height: 22px;
+    }
+
+.sepa-assurance-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 20px;
+}
+
+.sepa-assurance-information {
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 16px;
+}
+
+    .sepa-assurance-information strong {
+        color: #1d1b20;
+        font-size: 16px;
+        font-weight: 500;
+    }
+
+
+/* ============================================================
+   Document upload
+   ============================================================ */
+
+.sepa-document-upload {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+
+.sepa-document-upload-title {
+    color: #002d72;
+    font-family: Lato, sans-serif;
+    font-size: 14px;
+    font-weight: 700;
+    line-height: 24px;
+    text-transform: uppercase;
+    letter-spacing: 0.28px;
+}
+
+.sepa-document-help {
+    margin: 0;
+    color: #666666;
+    font-family: Lato, sans-serif;
+    font-size: 13px;
+    line-height: 20px;
+}
+
+
+/* ============================================================
+   Site applications
+   ============================================================ */
+
+.site-application-toolbar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 16px;
+    margin-bottom: 20px;
+}
+
+.site-application-search {
+    width: 100%;
+    max-width: 480px;
+}
+
+.site-application-count {
+    flex: 0 0 auto;
+    color: #666666;
+    font-family: Lato, sans-serif;
+    font-size: 13px;
+    font-weight: 700;
+}
+
+.site-applications-grid {
+    width: 100%;
+}
+
+    .site-applications-grid .k-grid-content {
+        overflow-x: auto;
+    }
+
+    .site-applications-grid .k-table-td {
+        padding: 10px;
+        vertical-align: top;
+    }
+
+.site-application-empty {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    padding: 28px 20px;
+    border: 1px dashed #d1d5db;
+    border-radius: 8px;
+    background: #fafafa;
+    text-align: center;
+}
+
+    .site-application-empty strong {
+        color: #002d72;
+        font-size: 16px;
+        font-weight: 700;
+    }
+
+    .site-application-empty p {
+        margin: 0;
+        color: #666666;
+        font-size: 13px;
+        line-height: 20px;
+    }
+
+
+/* ============================================================
+   Application history
+   ============================================================ */
+
+.sepa-history-grid {
+    width: 100%;
+}
+
+.sepa-history-loading {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    min-height: 80px;
+    color: #666666;
+    font-size: 14px;
+}
+
+.sepa-history-empty {
+    padding: 24px 0;
+    color: #666666;
+    font-size: 14px;
+}
+
+
+/* ============================================================
+   Loading
+   ============================================================ */
+
+.sepa-loading-container {
+    position: relative;
+    width: 100%;
+    min-height: 350px;
+}
+
+.sepa-loading-content {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 16px;
+    min-height: 350px;
+    color: #002d72;
+    font-family: Lato, sans-serif;
+    font-size: 14px;
+}
+
+
+/* ============================================================
+   Error
+   ============================================================ */
+
+.sepa-error-message {
+    display: flex;
+    align-items: flex-start;
+    gap: 16px;
+    padding: 24px;
+    border: 1px solid #e5e7eb;
+    border-radius: 8px;
+    background: #ffffff;
+    color: #1d1b20;
+}
+
+.sepa-error-icon {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex: 0 0 32px;
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    background: #fce1e1;
+    color: #910048;
+    font-weight: 700;
+}
+
+.sepa-error-content {
+    min-width: 0;
+}
+
+    .sepa-error-content strong {
+        display: block;
+        margin-bottom: 8px;
+        color: #910048;
+        font-size: 18px;
+    }
+
+    .sepa-error-content p {
+        margin: 0 0 16px;
+        color: #666666;
+        font-size: 14px;
+    }
+
+
+/* ============================================================
+   Responsive
+   ============================================================ */
+
+@media (max-width: 768px) {
+
+    .sepa-dashboard {
+        padding: 20px 16px;
+    }
+
+    .sepa-application-header {
+        flex-direction: column;
+        align-items: stretch;
+    }
+
+    .sepa-dashboard-toolbar {
+        justify-content: flex-start;
+    }
+
+    .sepa-title-row h1 {
+        font-size: 26px;
+        line-height: 34px;
+    }
+
+    .sepa-entity-name {
+        font-size: 16px;
+    }
+
+    .sepa-card-header {
+        padding: 16px;
+    }
+
+        .sepa-card-header h2 {
+            font-size: 20px;
+            line-height: 28px;
+        }
+
+    .sepa-card-body {
+        padding: 16px;
+    }
+
+    .sepa-information-grid {
+        grid-template-columns: minmax(0, 1fr);
+        gap: 20px;
+    }
+
+    .site-application-toolbar {
+        align-items: stretch;
+        flex-direction: column;
+    }
+
+    .site-application-search {
+        max-width: none;
+    }
+
+    .site-application-count {
+        text-align: right;
+    }
+}
+
+@media (max-width: 600px) {
+
+    .sepa-assurance-row {
+        align-items: flex-start;
+        flex-direction: column;
+    }
+
+    .sepa-section-action {
+        align-items: flex-start;
+        flex-direction: column;
+    }
+
+    .sepa-error-message {
+        padding: 16px;
+    }
+}
+
+
+.site-card-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+    gap: 20px;
+    align-items: stretch;
+}
+
+.site-card-grid-item {
+    min-width: 0;
+    min-height: 279px;
+}
+
+@media (max-width: 600px) {
+    .site-card-grid {
+        grid-template-columns: minmax(0, 1fr);
+    }
+}

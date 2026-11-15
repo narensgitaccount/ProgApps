@@ -19,7 +19,7 @@
     <PackageReference Include="Serilog.AspNetCore" Version="10.0.0" />
   </ItemGroup>
 	<ItemGroup>
-		<PackageReference Include="Telerik.UI.for.Blazor"  Version="15.1.0" />
+		<PackageReference Include="Telerik.UI.for.Blazor" Version="15.1.0" />
 	</ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\ADE.ESS.SEPA.Application\ADE.ESS.SEPA.Application.csproj" />
