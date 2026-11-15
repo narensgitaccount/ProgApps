@@ -1,10 +1,13 @@
+using Microsoft.Extensions.Options;
+
 namespace ADE.ESS.SEPA.Client.Auth;
 
-public sealed class FakeUserSecurityManager : IESSUserSecurityManager
+public sealed class FakeUserSecurityManager(IOptions<FakeAuthOptions> options) : IESSUserSecurityManager
 {
-    private static readonly ESSUserPermission[] Permissions =
+    private readonly ESSUserPermission[] _permissions =
     [
-        new() { EntityId = FakeAuthDefaults.EntityId, Permission = FakeAuthDefaults.Permission }
+        .. FakeAuthDefaults.GetPermissions(options.Value)
+            .Select(p => new ESSUserPermission { EntityId = FakeAuthDefaults.EntityId, Permission = p })
     ];
 
     public string GetEmail() => FakeAuthDefaults.Email;
@@ -23,5 +26,5 @@ public sealed class FakeUserSecurityManager : IESSUserSecurityManager
         IsUserAuthorized(edOrgId, permissions);
 
     public IList<ESSUserPermission> GetEntityPermissions(int edOrg = 0) =>
-        [.. Permissions.Where(p => edOrg == 0 || p.EntityId == edOrg)];
+        [.. _permissions.Where(p => edOrg == 0 || p.EntityId == edOrg)];
 }

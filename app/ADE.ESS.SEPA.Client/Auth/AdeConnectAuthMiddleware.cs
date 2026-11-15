@@ -8,6 +8,7 @@ namespace ADE.ESS.SEPA.Client.Auth;
 public sealed class AdeConnectAuthMiddleware(
     RequestDelegate next,
     IOptions<AdeConnectOptions> options,
+    IOptions<FakeAuthOptions> fakeOptions,
     bool useFakeAuth)
 {
     private const string SignOutPath = "/signout";
@@ -59,9 +60,8 @@ public sealed class AdeConnectAuthMiddleware(
         if (context.User.Identity?.IsAuthenticated == true)
             return;
 
-        var principal = FakeAuthDefaults.CreatePrincipal(options.Value, CookieScheme);
+        var principal = FakeAuthDefaults.CreatePrincipal(options.Value, fakeOptions.Value, CookieScheme);
         await context.SignInAsync(CookieScheme, principal);
         context.User = principal;
     }
-
 }

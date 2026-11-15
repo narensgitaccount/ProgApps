@@ -11,6 +11,11 @@ public static class ServiceAuthExtension
     {
         services.AddAuthorization(options =>
         {
+            options.AddPolicy(AuthPolicyConstants.ESSAdmin, policy =>
+            {
+                policy.RequireAuthenticatedUser();
+                policy.Requirements.Add(new AuthorizedPermissionsRequirement(ESSUserPermissionsEnum.ESSAdmin));
+            });
             options.AddPolicy(AuthPolicyConstants.LEAApprover, policy =>
                 policy.Requirements.Add(new AuthorizedPermissionsRequirement(ESSUserPermissionsEnum.ESSPostSchoolOutcomes)));
         });

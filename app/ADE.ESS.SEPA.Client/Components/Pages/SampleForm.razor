@@ -1,0 +1,28 @@
+@page "/sample-form"
+
+<PageTitle>Sample Form</PageTitle>
+
+<h1>Sample Form</h1>
+
+<EditForm Model="_model" OnValidSubmit="SubmitAsync">
+    <div class="mb-3">
+        <label for="sample-name" class="form-label">Name</label>
+        <TelerikTextBox Id="sample-name" @bind-Value="_model.Name" />
+    </div>
+
+    <div class="mb-3">
+        <label for="sample-reference" class="form-label">Reference code</label>
+        <TelerikTextBox Id="sample-reference" @bind-Value="_model.ReferenceCode" ReadOnly="@(!_canEditReference)" />
+        @if (!_canEditReference)
+        {
+            <div class="form-text">Admins can view this field but not change it.</div>
+        }
+    </div>
+
+    <TelerikButton ButtonType="ButtonType.Submit" ThemeColor="@ThemeConstants.Button.ThemeColor.Primary">Save</TelerikButton>
+</EditForm>
+
+@if (_message is not null)
+{
+    <p class="mt-3" role="status">@_message</p>
+}

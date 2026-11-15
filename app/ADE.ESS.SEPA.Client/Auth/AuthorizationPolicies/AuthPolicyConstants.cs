@@ -4,6 +4,7 @@ namespace ADE.ESS.SEPA.Client.Auth.AuthorizationPolicies
     {
         public const string InternalUser = "InternalUser";
         public const string ADEAdmin = "ADEAdmin";
+        public const string ESSAdmin = "ESSAdmin";
         public const string LEAApprover = "LEAApprover";
         public const string SchoolSubmitter = "SchoolSubmitter";
         public const string Admin = "Admin"; //SEPA Existing User role

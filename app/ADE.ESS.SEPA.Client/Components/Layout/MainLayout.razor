@@ -41,6 +41,10 @@
                         <DropDownButtonItem OnClick="@(() => GoTo("/Info"))">Program Information</DropDownButtonItem>
                     </DropDownButtonItems>
                 </TelerikDropDownButton>
+                <NavLink href="/sample-form" class="sepa-nav-link" Match="NavLinkMatch.Prefix">Sample Form</NavLink>
+                <AuthorizeView Policy="@AuthPolicyConstants.ESSAdmin">
+                    <NavLink href="/admin" class="sepa-nav-link" Match="NavLinkMatch.Prefix">Admin</NavLink>
+                </AuthorizeView>
             </div>
 
             <div class="sepa-nav-right">

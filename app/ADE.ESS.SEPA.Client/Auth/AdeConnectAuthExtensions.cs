@@ -8,7 +8,7 @@ public static class AdeConnectAuthExtensions
 {
     public const string UseFakeAuthSetting = "UseFakeAuth";
 
-    private const string AccessDeniedPath = "/Error?errorMessageConstant=AccessDenied";
+    private const string AccessDeniedPath = "/access-denied";
 
     public static IServiceCollection AddAdeConnectAuth(
         this IServiceCollection services,
@@ -20,7 +20,10 @@ public static class AdeConnectAuthExtensions
             .ValidateDataAnnotations()
             .ValidateOnStart();
 
+        services.AddOptions<FakeAuthOptions>().BindConfiguration(FakeAuthOptions.SectionName);
+
         services.AddHttpContextAccessor();
+        services.AddCascadingAuthenticationState();
         services.AddScoped<IEntityContextResolver, EntityContextResolver>();
         services.AddScoped<IBrowserSessionService, BrowserSessionService>();
 

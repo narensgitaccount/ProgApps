@@ -10,17 +10,24 @@ public static class FakeAuthDefaults
     public const string FirstName = "Fake";
     public const string LastName = "User";
     public const string Department = "Exceptional Student Services";
-    public const ESSUserPermissionsEnum Permission = ESSUserPermissionsEnum.ESSPostSchoolOutcomes;
 
-    public static ClaimsPrincipal CreatePrincipal(AdeConnectOptions options, string authenticationType)
+    public static IReadOnlyList<ESSUserPermissionsEnum> GetPermissions(FakeAuthOptions options) =>
+        options.IsAdmin
+            ? [ESSUserPermissionsEnum.ESSPostSchoolOutcomes, ESSUserPermissionsEnum.ESSAdmin]
+            : [ESSUserPermissionsEnum.ESSPostSchoolOutcomes];
+
+    public static ClaimsPrincipal CreatePrincipal(
+        AdeConnectOptions options,
+        FakeAuthOptions fakeOptions,
+        string authenticationType)
     {
-        Claim[] claims =
+        List<Claim> claims =
         [
             new(options.EmailAddressClaim, Email),
             new(options.FirstNameClaim, FirstName),
             new(options.LastNameClaim, LastName),
             new(options.DepartmentClaim, Department),
-            new(options.EntityPermissionClaim, $"{EntityId},{Permission.GetDescription()}")
+            .. GetPermissions(fakeOptions).Select(p => new Claim(options.EntityPermissionClaim, $"{EntityId},{p.GetDescription()}"))
         ];
 
         return new ClaimsPrincipal(new ClaimsIdentity(claims, authenticationType));
